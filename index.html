@@ -706,22 +706,24 @@ async function loadChart(range, tabBtn) {
   if (chartData[range]) { drawChart(chartData[range]); return; }
 
   const days = range === '7D' ? 7 : range === '30D' ? 30 : 365;
+  const end = Date.now();
+  const start = end - days * 864e5;
+  const interval = days <= 7 ? 'h6' : days <= 30 ? 'd1' : 'd1';
   try {
-    const r = await fetch(`https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=${days}`);
+    const r = await fetch(`https://api.coincap.io/v2/assets/bitcoin/history?interval=${interval}&start=${Math.floor(start)}&end=${Math.floor(end)}`);
     const d = await r.json();
-    if (d.Data?.Data) {
-      const raw = d.Data.Data.map(p => ({ t: p.time * 1000, v: p.close }));
+    if (d.data && d.data.length) {
+      const raw = d.data.map(p => ({ t: +p.time, v: parseFloat(p.priceUsd) }));
       chartData[range] = raw;
-      // update 24h change from latest data
       if (range === '7D' && raw.length >= 2) {
-        const prev = raw[raw.length - 2].v;
+        const prev = raw[0].v;
         const curr = raw[raw.length - 1].v;
         btcData.change24h = ((curr - prev) / prev) * 100;
         updatePriceUI(btcData.price || curr, btcData.change24h);
       }
       drawChart(raw);
     }
-  } catch(e) {}
+  } catch(e) { console.warn('Chart error:', e); }
 }
 
 function drawChart(data) {
@@ -776,32 +778,36 @@ function drawChart(data) {
 //  NEWS (RSS via rss2json.com)
 // ══════════════════════════════════════════
 async function fetchNews() {
+  // Multiple feeds with fallbacks
   const feeds = [
-    { url: 'https://feeds.feedburner.com/CoinDesk', name: 'CoinDesk' },
-    { url: 'https://cointelegraph.com/rss', name: 'CoinTelegraph' },
+    { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml', name: 'CoinDesk' },
+    { url: 'https://bitcoinmagazine.com/.rss/full/', name: 'Bitcoin Magazine' },
+    { url: 'https://decrypt.co/feed', name: 'Decrypt' },
+    { url: 'https://cryptonews.com/news/feed/', name: 'CryptoNews' },
   ];
   const results = [];
-  for (const feed of feeds) {
+  const BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
+  await Promise.allSettled(feeds.map(async feed => {
     try {
-      const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}&count=20`);
+      const r = await fetch(BASE + encodeURIComponent(feed.url) + '&count=20&api_key=');
+      if (!r.ok) return;
       const d = await r.json();
-      if (d.items) {
+      if (d.status === 'ok' && d.items?.length) {
         d.items.forEach(item => {
           results.push({
-            title: item.title,
+            title: item.title?.trim(),
             link: item.link,
             source: feed.name,
-            pubDate: new Date(item.pubDate),
+            pubDate: new Date(item.pubDate || item.published),
             pubDateStr: item.pubDate,
           });
         });
       }
     } catch(e) {}
-  }
+  }));
   results.sort((a,b) => b.pubDate - a.pubDate);
   allNews = results;
   renderDashNews();
-  // re-render news cal if open
   if (document.getElementById('view-newscal').classList.contains('active')) {
     renderMonthCal();
   }
