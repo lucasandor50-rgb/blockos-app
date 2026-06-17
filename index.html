@@ -1,758 +1,763 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>blockOS v2</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>blockOS — Bitcoin Dashboard</title>
+  <meta name="description" content="Bitcoin Live-Dashboard: Preis, Portfolio-Tracker, Fear & Greed, Mempool-Fees, DCA-Rechner"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     :root {
-      --bg:       #080808;
-      --bg1:      #111111;
-      --bg2:      #1a1a1a;
-      --bg3:      #222222;
-      --border:   #2a2a2a;
-      --border2:  #333333;
-      --text:     #f0f0f0;
-      --text2:    #a0a0a0;
-      --text3:    #606060;
-      --orange:   #f7931a;
-      --orange2:  #ffb347;
-      --green:    #22c55e;
-      --red:      #ef4444;
-      --blue:     #3b82f6;
-      --radius:   12px;
-      --radius-sm:8px;
+      --bg:     #080808;
+      --bg1:    #111111;
+      --bg2:    #181818;
+      --bg3:    #222222;
+      --bd:     #242424;
+      --bd2:    #303030;
+      --tx:     #efefef;
+      --tx2:    #909090;
+      --tx3:    #555555;
+      --or:     #f7931a;
+      --or2:    #ffb347;
+      --gn:     #22c55e;
+      --rd:     #ef4444;
+      --bl:     #3b82f6;
+      --r:      12px;
+      --r2:     8px;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
 
     /* ── HEADER ── */
-    header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 56px;
-      background: rgba(8,8,8,0.92);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 20px; gap: 16px;
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:100;height:54px;
+      background:rgba(8,8,8,0.94);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--bd);
+      display:flex;align-items:center;padding:0 20px;gap:12px;
     }
-    .logo {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 16px; font-weight: 700; color: var(--text);
-      text-decoration: none;
-    }
-    .logo-icon {
-      width: 28px; height: 28px; background: var(--orange);
-      border-radius: 6px; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: #000; font-weight: 900;
-    }
-    .logo-badge {
-      font-size: 10px; font-weight: 600; color: var(--text3);
-      background: var(--bg2); border: 1px solid var(--border);
-      padding: 1px 5px; border-radius: 4px;
-    }
-    .header-spacer { flex: 1; }
+    .logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--tx);text-decoration:none;white-space:nowrap}
+    .logo-icon{width:28px;height:28px;background:var(--or);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;font-weight:900}
+    .hspace{flex:1}
 
-    /* Price pill */
-    #price-pill {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--bg1); border: 1px solid var(--border);
-      padding: 6px 12px; border-radius: 20px;
-      font-family: 'JetBrains Mono', monospace; font-size: 13px;
-    }
-    .price-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-    .price-dot.red { background: var(--red); }
-    #price-usd { font-weight: 600; color: var(--text); }
-    #price-change { font-size: 11px; }
-    .price-up { color: var(--green); }
-    .price-down { color: var(--red); }
+    /* live price in header */
+    #h-price{display:flex;align-items:center;gap:8px;background:var(--bg1);border:1px solid var(--bd);padding:5px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    #h-price-val{font-weight:700}
+    #h-price-chg{font-size:11px}
 
-    /* Block pill */
-    #block-pill {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--bg1); border: 1px solid var(--border);
-      padding: 6px 12px; border-radius: 20px;
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2);
-    }
-    #block-pill i { color: var(--orange); font-size: 10px; }
-    #block-num { color: var(--text); font-weight: 600; }
-
-    /* Nav */
-    nav.top-nav {
-      display: flex; align-items: center; gap: 2px;
-      background: var(--bg1); border: 1px solid var(--border);
-      padding: 3px; border-radius: 10px;
-    }
-    .nav-btn {
-      padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 500;
-      color: var(--text2); background: transparent; border: none;
-      cursor: pointer; transition: all 0.15s; white-space: nowrap;
-    }
-    .nav-btn:hover { color: var(--text); background: var(--bg2); }
-    .nav-btn.active { color: var(--text); background: var(--bg2); }
+    /* nav */
+    nav.topnav{display:flex;align-items:center;gap:2px;background:var(--bg1);border:1px solid var(--bd);padding:3px;border-radius:10px}
+    .nb{padding:4px 11px;border-radius:7px;font-size:12px;font-weight:500;color:var(--tx2);background:transparent;border:none;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap}
+    .nb:hover{color:var(--tx);background:var(--bg2)}
+    .nb.active{color:var(--tx);background:var(--bg2)}
 
     /* ── LAYOUT ── */
-    main {
-      margin-top: 56px;
-      min-height: calc(100vh - 56px);
-      padding: 24px 20px;
-      max-width: 1400px;
-      margin-left: auto; margin-right: auto;
-      margin-top: 56px;
-    }
+    main{margin-top:54px;padding:20px;max-width:1400px;margin-left:auto;margin-right:auto}
+    .view{display:none}
+    .view.active{display:block}
 
-    /* View switching */
-    .view { display: none; }
-    .view.active { display: block; }
+    /* ── GRID HELPERS ── */
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+    .g21{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:16px}
+    @media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:1fr}}
+    @media(max-width:600px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}.g21{grid-template-columns:1fr}}
 
-    /* ── DASHBOARD ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    /* ── CARDS ── */
+    .card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
+    .card-sm{padding:16px}
+    .clabel{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .cval{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--tx);line-height:1}
+    .csub{font-size:12px;color:var(--tx3);margin-top:5px}
+    .cmono{font-family:'JetBrains Mono',monospace}
 
-    .stat-card {
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px 20px;
-    }
-    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--text); }
-    .stat-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+    /* price card special */
+    .price-card{background:linear-gradient(135deg,rgba(247,147,26,.06) 0%,var(--bg1) 60%);border-color:rgba(247,147,26,.15)}
+    .cval-lg{font-size:36px}
 
-    /* Price chart */
-    .chart-card {
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-      margin-bottom: 20px;
-    }
-    .chart-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .chart-title { font-size: 14px; font-weight: 600; color: var(--text); }
-    .chart-tabs { display: flex; gap: 4px; }
-    .chart-tab {
-      padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 500;
-      color: var(--text3); background: transparent; border: none; cursor: pointer;
-    }
-    .chart-tab.active { color: var(--orange); background: rgba(247,147,26,0.1); }
-    #price-chart { width: 100%; height: 140px; }
+    /* stat up/down */
+    .up{color:var(--gn)}
+    .dn{color:var(--rd)}
 
-    /* Two-col layout */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+    /* ── CHART ── */
+    .chart-wrap{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:16px}
+    .chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .chart-title{font-size:14px;font-weight:600}
+    .chart-tabs{display:flex;gap:3px}
+    .ct{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:500;color:var(--tx3);background:transparent;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+    .ct:hover{color:var(--tx2)}
+    .ct.active{color:var(--or);background:rgba(247,147,26,.1)}
+    #chart-canvas{width:100%;height:160px;display:block}
 
-    .card {
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-    }
-    .card-title {
-      font-size: 13px; font-weight: 600; color: var(--text2);
-      margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em;
-    }
+    /* ── FEAR & GREED ── */
+    .fg-wrap{display:flex;align-items:center;gap:16px}
+    .fg-gauge{position:relative;width:80px;height:80px;flex-shrink:0}
+    .fg-gauge svg{width:80px;height:80px}
+    .fg-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700}
+    .fg-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+    .fg-info p{font-size:12px;color:var(--tx2);margin-bottom:4px}
 
-    /* Recent notes */
-    .note-item {
-      padding: 10px 0; border-bottom: 1px solid var(--border);
-      cursor: pointer;
-    }
-    .note-item:last-child { border-bottom: none; }
-    .note-slot { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--orange); }
-    .note-text { font-size: 13px; color: var(--text); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .note-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    /* ── MEMPOOL FEES ── */
+    .fee-row{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+    .fee-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:var(--r2);border:1px solid var(--bd)}
+    .fee-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase}
+    .fee-badge.fast{background:rgba(239,68,68,.15);color:var(--rd)}
+    .fee-badge.mid{background:rgba(247,147,26,.15);color:var(--or)}
+    .fee-badge.slow{background:rgba(34,197,94,.15);color:var(--gn)}
+    .fee-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+    .fee-usd{font-size:11px;color:var(--tx3)}
 
-    /* Halving */
-    .halving-card {
-      background: linear-gradient(135deg, rgba(247,147,26,0.08) 0%, var(--bg1) 100%);
-      border: 1px solid rgba(247,147,26,0.2);
-    }
-    .halving-countdown {
-      display: flex; gap: 16px; margin-top: 8px;
-    }
-    .halving-unit { text-align: center; }
-    .halving-num {
-      font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--orange);
-      display: block;
-    }
-    .halving-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+    /* ── PORTFOLIO ── */
+    .portfolio-hero{background:linear-gradient(135deg,rgba(247,147,26,.08),var(--bg1));border:1px solid rgba(247,147,26,.2);border-radius:var(--r);padding:24px;margin-bottom:16px}
+    .portfolio-total{font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:700;color:var(--tx);margin-bottom:4px}
+    .portfolio-pnl{font-size:15px;font-weight:600;margin-bottom:16px}
+    .portfolio-row{display:flex;gap:24px;flex-wrap:wrap}
+    .portfolio-stat{display:flex;flex-direction:column;gap:2px}
+    .portfolio-stat-label{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
+    .portfolio-stat-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600}
 
-    /* ── BLOCK CALENDAR ── */
-    .cal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .cal-date-nav { display: flex; align-items: center; gap: 12px; }
-    .cal-date-nav h2 { font-size: 18px; font-weight: 600; }
-    .btn-nav {
-      width: 32px; height: 32px; background: var(--bg1);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; transition: all 0.15s;
-    }
-    .btn-nav:hover { border-color: var(--orange); color: var(--orange); }
-    .btn-today {
-      padding: 6px 12px; background: var(--bg1);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500;
-      font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .btn-today:hover { border-color: var(--orange); color: var(--orange); }
+    .input-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:12px}
+    .inp-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px}
+    .inp-label{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
+    .inp{background:var(--bg2);border:1px solid var(--bd2);border-radius:var(--r2);padding:10px 12px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;width:100%}
+    .inp:focus{border-color:var(--or)}
+    .inp::placeholder{color:var(--tx3)}
+    .btn{padding:10px 18px;border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+    .btn-or{background:var(--or);color:#000}
+    .btn-or:hover{background:var(--or2)}
+    .btn-ghost{background:var(--bg2);border:1px solid var(--bd2);color:var(--tx2)}
+    .btn-ghost:hover{color:var(--tx);border-color:var(--bd2)}
+    .btn-rd{background:rgba(239,68,68,.15);color:var(--rd);border:1px solid rgba(239,68,68,.2)}
+    .btn-rd:hover{background:rgba(239,68,68,.25)}
 
-    .blocks-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 6px;
-    }
-    @media (max-width: 900px) { .blocks-grid { grid-template-columns: repeat(8, 1fr); } }
-    @media (max-width: 600px) { .blocks-grid { grid-template-columns: repeat(6, 1fr); } }
-    @media (max-width: 400px) { .blocks-grid { grid-template-columns: repeat(4, 1fr); } }
+    /* Holdings list */
+    .holdings{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+    .holding-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);transition:all .15s}
+    .holding-left{display:flex;flex-direction:column;gap:3px}
+    .holding-label{font-size:13px;font-weight:600;color:var(--tx)}
+    .holding-detail{font-size:11px;color:var(--tx3)}
+    .holding-right{text-align:right}
+    .holding-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700}
+    .holding-pnl{font-size:11px;font-weight:600;margin-top:2px}
+    .del-btn{background:none;border:none;color:var(--tx3);cursor:pointer;padding:4px;font-size:13px;margin-left:12px}
+    .del-btn:hover{color:var(--rd)}
 
-    .block-slot {
-      aspect-ratio: 1;
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; padding: 4px;
-      transition: all 0.15s; position: relative; overflow: hidden;
-    }
-    .block-slot:hover { border-color: var(--orange); transform: scale(1.04); z-index: 2; }
-    .block-slot.has-note { border-color: rgba(247,147,26,0.4); background: rgba(247,147,26,0.05); }
-    .block-slot.current { border-color: var(--orange); box-shadow: 0 0 12px rgba(247,147,26,0.2); }
-    .block-slot.future { opacity: 0.35; }
-    .slot-time { font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
-    .slot-block { font-size: 9px; color: var(--orange); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
-    .slot-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); position: absolute; top: 4px; right: 4px; }
+    /* Add position */
+    .add-card{background:var(--bg1);border:1px dashed var(--bd2);border-radius:var(--r);padding:20px;margin-bottom:16px}
+    .add-card-title{font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:14px}
+
+    /* ── DCA ── */
+    .dca-result{background:linear-gradient(135deg,rgba(247,147,26,.06),var(--bg1));border:1px solid rgba(247,147,26,.15);border-radius:var(--r);padding:20px;margin-top:16px}
+    .dca-result-title{font-size:12px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .dca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:500px){.dca-grid{grid-template-columns:1fr 1fr}}
+    .dca-stat{display:flex;flex-direction:column;gap:4px}
+    .dca-stat-label{font-size:11px;color:var(--tx3)}
+    .dca-stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--tx)}
+    .dca-chart-wrap{margin-top:16px}
+    #dca-canvas{width:100%;height:120px}
+
+    /* ── NEWS ── */
+    .news-list{display:flex;flex-direction:column;gap:8px}
+    .news-item{display:flex;gap:14px;padding:14px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);text-decoration:none;transition:all .15s}
+    .news-item:hover{border-color:var(--bd2);background:var(--bg2)}
+    .news-source-badge{font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+    .news-headline{font-size:14px;color:var(--tx);font-weight:500;line-height:1.45;margin-bottom:5px}
+    .news-meta{font-size:11px;color:var(--tx3)}
+    .news-points{font-size:11px;color:var(--or);margin-left:8px}
 
     /* ── NEWS CALENDAR ── */
-    .news-cal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .month-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-      margin-bottom: 20px;
-    }
-    .month-day-name {
-      text-align: center; font-size: 11px; font-weight: 600;
-      color: var(--text3); padding: 6px 0; text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .month-day {
-      height: 80px; background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); cursor: pointer; padding: 8px;
-      display: flex; flex-direction: column; align-items: flex-start;
-      transition: all 0.15s; position: relative; overflow: hidden;
-    }
-    @media (max-width: 600px) { .month-day { height: 52px; padding: 5px; } }
-    .month-day:hover { border-color: var(--blue); }
-    .month-day.today { border-color: var(--orange); background: rgba(247,147,26,0.04); }
-    .month-day.other-month { opacity: 0.3; }
-    .month-day.selected { border-color: var(--blue); background: rgba(59,130,246,0.08); }
-    .month-day.has-news::after {
-      content: '';
-      position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
-      width: 18px; height: 2px; background: var(--blue); border-radius: 1px;
-    }
-    .day-num { font-size: 12px; font-weight: 600; color: var(--text); }
-    .month-day.other-month .day-num { color: var(--text3); }
-    .day-news-count {
-      font-size: 9px; color: var(--blue); font-weight: 600;
-      margin-top: auto;
-    }
+    .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .cal-nav h2{font-size:17px;font-weight:600}
+    .btn-icon{width:30px;height:30px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+    .btn-icon:hover{border-color:var(--or);color:var(--or)}
+    .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+    .dow{text-align:center;font-size:10px;font-weight:600;color:var(--tx3);padding:4px 0;text-transform:uppercase}
+    .mday{height:68px;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);cursor:pointer;padding:7px;display:flex;flex-direction:column;transition:all .15s;position:relative;overflow:hidden}
+    .mday:hover{border-color:var(--bl)}
+    .mday.today{border-color:var(--or);background:rgba(247,147,26,.04)}
+    .mday.other{opacity:.3}
+    .mday.sel{border-color:var(--bl);background:rgba(59,130,246,.07)}
+    .mday.hasnews::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--bl);border-radius:1px}
+    .mday-num{font-size:12px;font-weight:600}
+    .mday-cnt{font-size:9px;color:var(--bl);font-weight:700;margin-top:auto}
+    .news-panel{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+    .news-panel-hdr{font-size:14px;font-weight:600;margin-bottom:12px}
+    .news-empty{color:var(--tx3);font-size:13px;text-align:center;padding:20px}
 
-    /* News list */
-    .news-panel {
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-    }
-    .news-panel-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
-    .news-list { display: flex; flex-direction: column; gap: 10px; }
-    .news-item {
-      padding: 12px; background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
-      text-decoration: none;
-    }
-    .news-item:hover { border-color: var(--border2); background: var(--bg3); }
-    .news-source {
-      font-size: 10px; font-weight: 600; color: var(--blue);
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
-    }
-    .news-headline { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.4; }
-    .news-meta { font-size: 11px; color: var(--text3); margin-top: 5px; }
-    .news-loading { color: var(--text3); font-size: 13px; text-align: center; padding: 24px 0; }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px); z-index: 200;
-      display: none; align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--bg1); border: 1px solid var(--border2);
-      border-radius: 16px; width: 100%; max-width: 500px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-    }
-    .modal-header {
-      padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between;
-    }
-    .modal-title { font-size: 15px; font-weight: 700; color: var(--text); }
-    .modal-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
-    .modal-close {
-      width: 28px; height: 28px; background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 6px; color: var(--text2); cursor: pointer; font-size: 12px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .modal-close:hover { color: var(--text); }
-    .modal-body { padding: 20px 24px 24px; }
-    .modal-textarea {
-      width: 100%; min-height: 120px; background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text); font-family: 'Inter', sans-serif;
-      font-size: 14px; padding: 12px; resize: vertical; outline: none; line-height: 1.6;
-      margin-bottom: 12px;
-    }
-    .modal-textarea:focus { border-color: var(--orange); }
-    .modal-textarea::placeholder { color: var(--text3); }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn {
-      padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
-      cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .btn-ghost { background: var(--bg2); border: 1px solid var(--border); color: var(--text2); }
-    .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
-    .btn-primary { background: var(--orange); color: #000; font-weight: 700; }
-    .btn-primary:hover { background: var(--orange2); }
-    .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
-    .btn-danger:hover { background: rgba(239,68,68,0.25); }
-    .modal-timestamp {
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3);
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
-      padding: 6px 10px; margin-bottom: 12px; cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .modal-timestamp:hover .copy-hint { opacity: 1; }
-    .copy-hint { font-size: 10px; color: var(--blue); opacity: 0; transition: opacity 0.2s; }
-
-    /* ── MOBILE BOTTOM NAV ── */
-    .mobile-nav {
-      display: none; position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(8,8,8,0.95); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border); z-index: 100;
-      padding: 8px 0 env(safe-area-inset-bottom, 8px);
-    }
-    .mobile-nav-inner { display: flex; }
-    .mobile-nav-btn {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; padding: 6px 0; background: transparent; border: none; cursor: pointer;
-      color: var(--text3); transition: color 0.15s;
-    }
-    .mobile-nav-btn.active { color: var(--orange); }
-    .mobile-nav-btn i { font-size: 18px; }
-    .mobile-nav-btn span { font-size: 10px; font-weight: 500; font-family: 'Inter', sans-serif; }
-
-    @media (max-width: 700px) {
-      .mobile-nav { display: block; }
-      main { padding: 16px 12px 80px; }
-      nav.top-nav { display: none !important; }
-      #block-pill { display: none !important; }
-      header { padding: 0 12px; gap: 10px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .blocks-grid { grid-template-columns: repeat(8, 1fr); gap: 4px; }
-    }
+    /* ── MOBILE NAV ── */
+    .mobnav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,8,.96);backdrop-filter:blur(20px);border-top:1px solid var(--bd);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+    .mobnav-inner{display:flex}
+    .mobbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;background:transparent;border:none;cursor:pointer;color:var(--tx3);transition:color .15s;font-family:'Inter',sans-serif}
+    .mobbtn.active{color:var(--or)}
+    .mobbtn i{font-size:17px}
+    .mobbtn span{font-size:10px;font-weight:500}
+    @media(max-width:700px){.mobnav{display:block};nav.topnav{display:none!important};main{padding:14px 12px 78px};header{padding:0 12px;gap:8px}}
 
     /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px;
-      padding: 10px 16px; font-size: 13px; color: var(--text);
-      opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 300; white-space: nowrap;
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid var(--bd2);border-radius:8px;padding:9px 16px;font-size:13px;opacity:0;transition:all .2s;pointer-events:none;z-index:300;white-space:nowrap}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    /* ── EMPTY STATE ── */
-    .empty { text-align: center; padding: 48px 20px; color: var(--text3); font-size: 13px; }
-    .empty i { font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.4; }
+    .empty{text-align:center;padding:40px 20px;color:var(--tx3);font-size:13px}
+    .empty i{font-size:28px;display:block;margin-bottom:10px;opacity:.35}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin{animation:spin 1s linear infinite;display:inline-block}
+    .section-title{font-size:13px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
 
-    /* JOURNAL */
-    .journal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 700px) { .journal-grid { grid-template-columns: 1fr; } }
-    .journal-entry {
-      background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .journal-entry:hover { border-color: var(--border2); }
-    .journal-entry-slot { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--orange); margin-bottom: 6px; }
-    .journal-entry-text { font-size: 13px; color: var(--text); line-height: 1.5; }
-    .journal-entry-date { font-size: 11px; color: var(--text3); margin-top: 8px; }
+    /* Currency toggle */
+    .cur-toggle{display:flex;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:2px;gap:2px}
+    .cur-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:transparent;color:var(--tx3);font-family:'Inter',sans-serif;transition:all .15s}
+    .cur-btn.active{background:var(--bg3);color:var(--tx)}
 
-    /* Spinner for loading */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { animation: spin 1s linear infinite; display: inline-block; }
+    /* Sats toggle */
+    .sats-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+    .sats-label{font-size:11px;color:var(--tx3)}
+    .sats-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tx2)}
   </style>
 </head>
 <body>
 
 <!-- ── HEADER ── -->
 <header>
-  <div class="logo">
-    <div class="logo-icon">₿</div>
-    blockOS
-    <span class="logo-badge">v2</span>
-  </div>
-  <nav class="top-nav">
-    <button class="nav-btn active" onclick="switchView('dashboard', this)">Dashboard</button>
-    <button class="nav-btn" onclick="switchView('blocks', this)">Blöcke</button>
-    <button class="nav-btn" onclick="switchView('newscal', this)">News-Kalender</button>
-    <button class="nav-btn" onclick="switchView('journal', this)">Journal</button>
+  <div class="logo"><div class="logo-icon">₿</div>blockOS</div>
+  <nav class="topnav">
+    <button class="nb active" onclick="sv('dashboard',this)">Dashboard</button>
+    <button class="nb" onclick="sv('portfolio',this)">Portfolio</button>
+    <button class="nb" onclick="sv('dca',this)">DCA</button>
+    <button class="nb" onclick="sv('news',this)">News</button>
   </nav>
-  <div class="header-spacer"></div>
-  <div id="block-pill">
-    <i class="fa-solid fa-cube"></i>
-    Block <span id="block-num">…</span>
+  <div class="hspace"></div>
+  <div class="cur-toggle">
+    <button class="cur-btn active" onclick="setCur('USD',this)">$</button>
+    <button class="cur-btn" onclick="setCur('EUR',this)">€</button>
   </div>
-  <div id="price-pill">
-    <div class="price-dot" id="price-dot"></div>
-    <span id="price-usd">–</span>
-    <span id="price-change"></span>
+  <div id="h-price">
+    <div class="live-dot"></div>
+    <span id="h-price-val">–</span>
+    <span id="h-price-chg"></span>
   </div>
 </header>
 
 <!-- ── MAIN ── -->
 <main>
 
-  <!-- DASHBOARD -->
-  <div class="view active" id="view-dashboard">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">BTC Preis</div>
-        <div class="stat-value" id="dash-price">–</div>
-        <div class="stat-sub" id="dash-change">Wird geladen…</div>
+<!-- ════ DASHBOARD ════ -->
+<div class="view active" id="view-dashboard">
+
+  <div class="g4">
+    <!-- BTC Price -->
+    <div class="card price-card">
+      <div class="clabel">BTC Preis</div>
+      <div class="cval cval-lg cmono" id="d-price">–</div>
+      <div class="csub" id="d-price-sub">Wird geladen…</div>
+    </div>
+    <!-- Market Cap -->
+    <div class="card">
+      <div class="clabel">Market Cap</div>
+      <div class="cval cmono" id="d-mcap">–</div>
+      <div class="csub" id="d-mcap-sub">24h Volumen</div>
+    </div>
+    <!-- Block Height -->
+    <div class="card">
+      <div class="clabel">Aktueller Block</div>
+      <div class="cval cmono" id="d-block">–</div>
+      <div class="csub">mempool.space</div>
+    </div>
+    <!-- Halving -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(247,147,26,.06),var(--bg1));border-color:rgba(247,147,26,.15)">
+      <div class="clabel">Nächstes Halving</div>
+      <div class="cval cmono" id="d-hv-days" style="color:var(--or)">–</div>
+      <div class="csub" id="d-hv-sub">Tage · ca. <span id="d-hv-date">–</span></div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap">
+    <div class="chart-hdr">
+      <div class="chart-title">BTC / <span id="chart-cur">USD</span></div>
+      <div class="chart-tabs">
+        <button class="ct active" onclick="loadChart('7D',this)">7T</button>
+        <button class="ct" onclick="loadChart('30D',this)">30T</button>
+        <button class="ct" onclick="loadChart('1Y',this)">1J</button>
+        <button class="ct" onclick="loadChart('ALL',this)">Max</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Aktueller Block</div>
-        <div class="stat-value" id="dash-block">–</div>
-        <div class="stat-sub" id="dash-block-sub">mempool.space</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Heutige Slots</div>
-        <div class="stat-value" id="dash-slots">144</div>
-        <div class="stat-sub" id="dash-slots-sub">à 10 Minuten</div>
-      </div>
-      <div class="stat-card halving-card">
-        <div class="stat-label">Nächstes Halving</div>
-        <div class="halving-countdown">
-          <div class="halving-unit">
-            <span class="halving-num" id="hv-blocks">–</span>
-            <span class="halving-label">Blöcke</span>
-          </div>
-          <div class="halving-unit">
-            <span class="halving-num" id="hv-days">–</span>
-            <span class="halving-label">Tage</span>
-          </div>
+    </div>
+    <canvas id="chart-canvas"></canvas>
+  </div>
+
+  <div class="g3">
+    <!-- Fear & Greed -->
+    <div class="card card-sm">
+      <div class="clabel">Fear & Greed</div>
+      <div class="fg-wrap" style="margin-top:8px">
+        <div class="fg-gauge">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+            <circle cx="40" cy="40" r="32" fill="none" id="fg-circle"
+              stroke="#22c55e" stroke-width="8"
+              stroke-dasharray="201" stroke-dashoffset="201"
+              stroke-linecap="round"
+              transform="rotate(-90 40 40)"/>
+          </svg>
+          <div class="fg-num" id="fg-num">–</div>
         </div>
-        <div class="stat-sub" style="margin-top:6px" id="hv-date"></div>
+        <div class="fg-info">
+          <div class="fg-label" id="fg-label" style="color:var(--gn)">–</div>
+          <p style="margin-top:6px">Gestern: <b id="fg-yesterday">–</b></p>
+          <p>Letzte Woche: <b id="fg-week">–</b></p>
+        </div>
       </div>
     </div>
 
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">BTC / USD</div>
-        <div class="chart-tabs">
-          <button class="chart-tab active" onclick="loadChart('7D', this)">7T</button>
-          <button class="chart-tab" onclick="loadChart('30D', this)">30T</button>
-          <button class="chart-tab" onclick="loadChart('1Y', this)">1J</button>
+    <!-- Mempool Fees -->
+    <div class="card card-sm">
+      <div class="clabel">Mempool · Tx-Gebühren</div>
+      <div class="fee-row" style="margin-top:8px">
+        <div class="fee-item">
+          <div><span class="fee-badge fast">Schnell</span><div style="font-size:10px;color:var(--tx3);margin-top:3px">~10 min</div></div>
+          <div style="text-align:right"><div class="fee-val" id="fee-fast">–</div><div class="fee-usd" id="fee-fast-usd"></div></div>
+        </div>
+        <div class="fee-item">
+          <div><span class="fee-badge mid">Mittel</span><div style="font-size:10px;color:var(--tx3);margin-top:3px">~30 min</div></div>
+          <div style="text-align:right"><div class="fee-val" id="fee-mid">–</div><div class="fee-usd" id="fee-mid-usd"></div></div>
+        </div>
+        <div class="fee-item">
+          <div><span class="fee-badge slow">Günstig</span><div style="font-size:10px;color:var(--tx3);margin-top:3px">~1–2h</div></div>
+          <div style="text-align:right"><div class="fee-val" id="fee-slow">–</div><div class="fee-usd" id="fee-slow-usd"></div></div>
         </div>
       </div>
-      <canvas id="price-chart"></canvas>
     </div>
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title">Letzte Notizen</div>
-        <div id="recent-notes">
-          <div class="empty"><i class="fa-regular fa-note-sticky"></i>Noch keine Notizen</div>
+    <!-- Quick Stats -->
+    <div class="card card-sm">
+      <div class="clabel">Weitere Stats</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--tx2)">ATH</span>
+          <span class="cmono" style="font-size:13px;font-weight:600" id="d-ath">–</span>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Neueste News</div>
-        <div id="dash-news">
-          <div class="empty"><i class="fa-regular fa-newspaper"></i>Wird geladen…</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--tx2)">ATH Abstand</span>
+          <span class="cmono" style="font-size:13px;font-weight:600" id="d-ath-pct"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--tx2)">52W Hoch</span>
+          <span class="cmono" style="font-size:13px;font-weight:600" id="d-52h">–</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--tx2)">52W Tief</span>
+          <span class="cmono" style="font-size:13px;font-weight:600" id="d-52l">–</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--tx2)">Umlauf</span>
+          <span class="cmono" style="font-size:13px;font-weight:600" id="d-supply">–</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- BLOCK CALENDAR -->
-  <div class="view" id="view-blocks">
-    <div class="cal-header">
-      <div class="cal-date-nav">
-        <button class="btn-nav" onclick="changeDay(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-        <h2 id="cal-day-title">Heute</h2>
-        <button class="btn-nav" onclick="changeDay(1)"><i class="fa-solid fa-chevron-right"></i></button>
-        <button class="btn-today" onclick="goToday()">Heute</button>
+  <!-- Top News Preview -->
+  <div class="section-title">Aktuell auf Hacker News</div>
+  <div id="d-news" class="news-list"></div>
+
+</div>
+
+<!-- ════ PORTFOLIO ════ -->
+<div class="view" id="view-portfolio">
+
+  <!-- Total value -->
+  <div class="portfolio-hero">
+    <div class="clabel">Gesamtwert</div>
+    <div class="portfolio-total" id="p-total">$0.00</div>
+    <div class="portfolio-pnl" id="p-pnl" style="color:var(--tx3)">Füge deine erste Position hinzu</div>
+    <div class="portfolio-row" id="p-stats" style="display:none">
+      <div class="portfolio-stat">
+        <span class="portfolio-stat-label">Investiert</span>
+        <span class="portfolio-stat-val" id="p-invested">–</span>
+      </div>
+      <div class="portfolio-stat">
+        <span class="portfolio-stat-label">Gewinn / Verlust</span>
+        <span class="portfolio-stat-val" id="p-gain">–</span>
+      </div>
+      <div class="portfolio-stat">
+        <span class="portfolio-stat-label">Gesamt BTC</span>
+        <span class="portfolio-stat-val" id="p-btc">–</span>
+      </div>
+      <div class="portfolio-stat">
+        <span class="portfolio-stat-label">Ø Einstiegspreis</span>
+        <span class="portfolio-stat-val" id="p-avg">–</span>
       </div>
     </div>
-    <div class="blocks-grid" id="blocks-grid"></div>
   </div>
 
-  <!-- NEWS CALENDAR -->
-  <div class="view" id="view-newscal">
-    <div class="news-cal-header">
-      <div class="cal-date-nav">
-        <button class="btn-nav" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-        <h2 id="newscal-title">Juni 2026</h2>
-        <button class="btn-nav" onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+  <!-- Holdings -->
+  <div class="section-title">Positionen</div>
+  <div class="holdings" id="p-holdings"></div>
+
+  <!-- Add position -->
+  <div class="add-card">
+    <div class="add-card-title"><i class="fa-solid fa-plus" style="color:var(--or);margin-right:6px"></i>Position hinzufügen</div>
+    <div class="input-row">
+      <div class="inp-group">
+        <div class="inp-label">BTC Menge</div>
+        <input class="inp" id="p-inp-btc" type="number" step="0.00001" min="0" placeholder="0.05" />
       </div>
+      <div class="inp-group">
+        <div class="inp-label">Einstiegspreis (USD)</div>
+        <input class="inp" id="p-inp-price" type="number" step="1" min="0" placeholder="65000" />
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Label (optional)</div>
+        <input class="inp" id="p-inp-label" type="text" placeholder="Hauptwallet" maxlength="30"/>
+      </div>
+      <button class="btn btn-or" onclick="addHolding()" style="align-self:flex-end;white-space:nowrap">Hinzufügen</button>
     </div>
-    <div class="month-grid" id="month-grid"></div>
-    <div class="news-panel">
-      <div class="news-panel-title" id="news-panel-title">Wähle einen Tag aus</div>
-      <div class="news-list" id="news-list">
-        <div class="news-loading">
-          <i class="fa-solid fa-circle-notch spinner" style="margin-right:6px"></i>
-          Lade News…
-        </div>
-      </div>
+    <div class="sats-row">
+      <span class="sats-label">1 BTC =</span>
+      <span class="sats-val" id="p-sats-rate">100.000.000 Sats</span>
+      <span class="sats-label" style="margin-left:12px">Du kannst auch Sats eingeben:</span>
+      <span class="sats-val">z.B. 0.00050000 = 50.000 Sats</span>
     </div>
   </div>
 
-  <!-- JOURNAL -->
-  <div class="view" id="view-journal">
-    <div class="cal-header">
-      <h2>Journal</h2>
-    </div>
-    <div class="journal-grid" id="journal-grid">
-      <div class="empty" style="grid-column:1/-1">
-        <i class="fa-regular fa-note-sticky"></i>Noch keine Notizen.<br>Klicke auf einen Block-Slot um anzufangen.
+</div>
+
+<!-- ════ DCA RECHNER ════ -->
+<div class="view" id="view-dca">
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">DCA-Rechner</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:20px">Was hättest du, wenn du regelmäßig Bitcoin gekauft hättest?</div>
+    <div class="input-row">
+      <div class="inp-group">
+        <div class="inp-label">Betrag pro Periode</div>
+        <input class="inp" id="dca-amount" type="number" value="100" min="1"/>
       </div>
+      <div class="inp-group">
+        <div class="inp-label">Frequenz</div>
+        <select class="inp" id="dca-freq">
+          <option value="weekly">Wöchentlich</option>
+          <option value="monthly" selected>Monatlich</option>
+          <option value="yearly">Jährlich</option>
+        </select>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Startdatum</div>
+        <input class="inp" id="dca-start" type="month" value="2020-01"/>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Währung</div>
+        <select class="inp" id="dca-cur">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+        </select>
+      </div>
+      <button class="btn btn-or" onclick="calcDCA()" style="align-self:flex-end">Berechnen</button>
     </div>
   </div>
+
+  <div id="dca-result" style="display:none">
+    <div class="dca-result">
+      <div class="dca-result-title">Ergebnis</div>
+      <div class="dca-grid">
+        <div class="dca-stat"><div class="dca-stat-label">Investiert</div><div class="dca-stat-val" id="dca-r-invested">–</div></div>
+        <div class="dca-stat"><div class="dca-stat-label">Aktueller Wert</div><div class="dca-stat-val" id="dca-r-value" style="color:var(--or)">–</div></div>
+        <div class="dca-stat"><div class="dca-stat-label">Gesamtrendite</div><div class="dca-stat-val" id="dca-r-roi">–</div></div>
+        <div class="dca-stat"><div class="dca-stat-label">BTC gesammelt</div><div class="dca-stat-val" id="dca-r-btc">–</div></div>
+        <div class="dca-stat"><div class="dca-stat-label">Ø Einstiegspreis</div><div class="dca-stat-val" id="dca-r-avg">–</div></div>
+        <div class="dca-stat"><div class="dca-stat-label">Käufe</div><div class="dca-stat-val" id="dca-r-count">–</div></div>
+      </div>
+      <div class="dca-chart-wrap">
+        <canvas id="dca-canvas"></canvas>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:8px;text-align:center">
+      * Historische Daten von Binance. Keine Anlageberatung.
+    </div>
+  </div>
+</div>
+
+<!-- ════ NEWS ════ -->
+<div class="view" id="view-news">
+  <div class="g21" style="align-items:start">
+    <div>
+      <div class="cal-nav">
+        <button class="btn-icon" onclick="chMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <h2 id="cal-title">–</h2>
+        <button class="btn-icon" onclick="chMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div class="month-grid" id="month-grid">
+        <div class="dow">Mo</div><div class="dow">Di</div><div class="dow">Mi</div>
+        <div class="dow">Do</div><div class="dow">Fr</div><div class="dow">Sa</div><div class="dow">So</div>
+      </div>
+      <div class="news-panel">
+        <div class="news-panel-hdr" id="news-panel-hdr">Wähle einen Tag</div>
+        <div id="news-panel-list"><div class="news-empty">← Tag auswählen</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Neueste News</div>
+      <div class="news-list" id="news-sidebar"></div>
+    </div>
+  </div>
+</div>
 
 </main>
 
-<!-- ── BLOCK NOTE MODAL ── -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title" id="modal-title">Block-Slot</div>
-        <div class="modal-meta" id="modal-meta"></div>
-      </div>
-      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-timestamp" id="modal-ts" onclick="copyTimestamp()">
-        <span id="modal-ts-text"></span>
-        <span class="copy-hint">Kopieren <i class="fa-regular fa-copy"></i></span>
-      </div>
-      <textarea class="modal-textarea" id="modal-note" placeholder="Deine Notiz für diesen Slot…"></textarea>
-      <div class="modal-actions">
-        <button class="btn btn-danger" id="modal-delete" onclick="deleteNote()">Löschen</button>
-        <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-        <button class="btn btn-primary" onclick="saveNote()">Speichern</button>
-      </div>
-    </div>
+<!-- MOBILE NAV -->
+<div class="mobnav">
+  <div class="mobnav-inner">
+    <button class="mobbtn active" onclick="sv('dashboard',this)"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></button>
+    <button class="mobbtn" onclick="sv('portfolio',this)"><i class="fa-solid fa-wallet"></i><span>Portfolio</span></button>
+    <button class="mobbtn" onclick="sv('dca',this)"><i class="fa-solid fa-calculator"></i><span>DCA</span></button>
+    <button class="mobbtn" onclick="sv('news',this)"><i class="fa-solid fa-newspaper"></i><span>News</span></button>
   </div>
 </div>
 
-<!-- ── MOBILE NAV ── -->
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <button class="mobile-nav-btn active" onclick="switchView('dashboard', this)" id="mnav-dashboard">
-      <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
-    </button>
-    <button class="mobile-nav-btn" onclick="switchView('blocks', this)" id="mnav-blocks">
-      <i class="fa-solid fa-calendar-days"></i><span>Blöcke</span>
-    </button>
-    <button class="mobile-nav-btn" onclick="switchView('newscal', this)" id="mnav-newscal">
-      <i class="fa-solid fa-newspaper"></i><span>News</span>
-    </button>
-    <button class="mobile-nav-btn" onclick="switchView('journal', this)" id="mnav-journal">
-      <i class="fa-solid fa-book"></i><span>Journal</span>
-    </button>
-  </div>
-</div>
-
-<!-- Toast -->
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let currentDay  = new Date();
-let currentDay0 = dayStart(new Date());
-let calMonth    = new Date();
-let btcData     = { price: 0, change24h: 0 };
-let blockHeight = 0;
-let chartData   = { '7D': null, '30D': null, '1Y': null };
-let allNews     = []; // [{title, link, source, pubDate}]
-let activeSlot  = null;
-const STORAGE_KEY = 'blockos_v2_notes';
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let btcPrices = { USD: 0, EUR: 0 }; // from mempool.space
+let btcChange24h = 0;
+let currency = 'USD';
+let chartData = {};
+let allNews = [];
+let calMonth = new Date();
+let dcaHistory = {}; // cached price history for DCA
+const STORAGE = 'blockos_v2_holdings';
 
-function dayStart(d) {
-  const c = new Date(d);
-  c.setHours(0,0,0,0);
-  return c;
+function getHoldings() {
+  try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); }
+  catch(e) { return []; }
+}
+function saveHoldings(h) { localStorage.setItem(STORAGE, JSON.stringify(h)); }
+
+// ─── Format ───────────────────────────
+const sym = () => currency === 'USD' ? '$' : '€';
+const price = () => currency === 'USD' ? btcPrices.USD : btcPrices.EUR;
+function fmtCur(v, decimals=0) {
+  return sym() + Number(v).toLocaleString('de-DE', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function fmtBTC(v) {
+  if (v >= 0.001) return v.toFixed(5) + ' BTC';
+  return Math.round(v * 1e8).toLocaleString('de-DE') + ' Sats';
 }
 
-function getNotes() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function setNotes(n) { localStorage.setItem(STORAGE_KEY, JSON.stringify(n)); }
-
-// ── View switching ──────────────────────
-function switchView(id, btn) {
+// ─── View Switch ──────────────────────
+function sv(id, btn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
-  document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nb, .mobbtn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  const mob = document.getElementById('mnav-' + id);
-  if (mob) mob.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (id === 'journal') renderJournal();
-  if (id === 'blocks') renderBlocks();
-  if (id === 'newscal') renderMonthCal();
+  if (id === 'portfolio') renderPortfolio();
+  if (id === 'news') renderNewsCal();
+  if (id === 'dca') { /* nothing extra */ }
 }
 
-// ══════════════════════════════════════════
-//  BTC PRICE
-// ══════════════════════════════════════════
+// ─── Currency ─────────────────────────
+function setCur(c, btn) {
+  currency = c;
+  document.querySelectorAll('.cur-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('chart-cur').textContent = c;
+  updatePriceUI();
+  renderPortfolio();
+  chartData = {}; // clear chart cache to reload in correct currency
+  loadChart('7D', document.querySelector('.ct.active'));
+}
+
+// ═══════════════════════════════════════
+// PRICE (mempool.space)
+// ═══════════════════════════════════════
 async function fetchPrice() {
   try {
     const r = await fetch('https://mempool.space/api/v1/prices');
     const d = await r.json();
-    const price = d.USD;
-    btcData.price = price;
-    updatePriceUI(price, null);
-  } catch(e) {
-    try {
-      const r2 = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
-      const d2 = await r2.json();
-      const price = parseFloat(d2.data.amount);
-      btcData.price = price;
-      updatePriceUI(price, null);
-    } catch(e2) {}
-  }
-}
-
-function updatePriceUI(price, change) {
-  const fmt = v => '$' + Number(v).toLocaleString('en-US', {maximumFractionDigits: 0});
-  document.getElementById('price-usd').textContent = fmt(price);
-  document.getElementById('dash-price').textContent = fmt(price);
-  if (change !== null && change !== undefined) {
-    const up = change >= 0;
-    const sign = up ? '+' : '';
-    document.getElementById('price-change').textContent = sign + change.toFixed(2) + '%';
-    document.getElementById('price-change').className = up ? 'price-up' : 'price-down';
-    document.getElementById('dash-change').textContent = sign + change.toFixed(2) + '% (24h)';
-    document.getElementById('dash-change').style.color = up ? 'var(--green)' : 'var(--red)';
-    document.getElementById('price-dot').className = 'price-dot' + (up ? '' : ' red');
-  }
-}
-
-// ══════════════════════════════════════════
-//  BLOCK HEIGHT
-// ══════════════════════════════════════════
-async function fetchBlock() {
-  try {
-    const r = await fetch('https://mempool.space/api/blocks/tip/height');
-    blockHeight = parseInt(await r.text());
-    document.getElementById('block-num').textContent = blockHeight.toLocaleString('de-DE');
-    document.getElementById('dash-block').textContent = blockHeight.toLocaleString('de-DE');
-    updateHalving(blockHeight);
+    btcPrices.USD = d.USD;
+    btcPrices.EUR = d.EUR;
+    updatePriceUI();
+    renderPortfolio();
   } catch(e) {}
 }
 
-function updateHalving(h) {
-  const HALVING_INTERVAL = 210000;
-  const next = Math.ceil(h / HALVING_INTERVAL) * HALVING_INTERVAL;
-  const blocksLeft = next - h;
-  const daysLeft = Math.round(blocksLeft * 10 / 60 / 24);
-  document.getElementById('hv-blocks').textContent = blocksLeft.toLocaleString('de-DE');
-  document.getElementById('hv-days').textContent = daysLeft;
-  const approxDate = new Date(Date.now() + daysLeft * 864e5);
-  document.getElementById('hv-date').textContent = 'ca. ' + approxDate.toLocaleDateString('de-DE', {month:'long', year:'numeric'});
+function updatePriceUI() {
+  const p = price();
+  if (!p) return;
+  document.getElementById('h-price-val').textContent = fmtCur(p);
+  document.getElementById('d-price').textContent = fmtCur(p);
+  if (btcChange24h !== 0) {
+    const up = btcChange24h >= 0;
+    const sign = up ? '+' : '';
+    const chgText = sign + btcChange24h.toFixed(2) + '%';
+    document.getElementById('h-price-chg').textContent = chgText;
+    document.getElementById('h-price-chg').className = up ? 'up' : 'dn';
+    document.getElementById('d-price-sub').textContent = chgText + ' (24h)';
+    document.getElementById('d-price-sub').className = 'csub ' + (up ? 'up' : 'dn');
+  }
 }
 
-// ══════════════════════════════════════════
-//  PRICE CHART
-// ══════════════════════════════════════════
-let chartCtx, chartInst;
+// ═══════════════════════════════════════
+// BLOCK + HALVING
+// ═══════════════════════════════════════
+async function fetchBlock() {
+  try {
+    const r = await fetch('https://mempool.space/api/blocks/tip/height');
+    const h = parseInt(await r.text());
+    document.getElementById('d-block').textContent = h.toLocaleString('de-DE');
+    const next = Math.ceil(h / 210000) * 210000;
+    const daysLeft = Math.round((next - h) * 10 / 60 / 24);
+    const approx = new Date(Date.now() + daysLeft * 864e5);
+    document.getElementById('d-hv-days').textContent = daysLeft.toLocaleString('de-DE');
+    document.getElementById('d-hv-sub').textContent = `Tage · ca. ${approx.toLocaleDateString('de-DE',{month:'long',year:'numeric'})} (Block ${next.toLocaleString('de-DE')})`;
+  } catch(e) {}
+}
 
+// ═══════════════════════════════════════
+// COINGECKO (market cap, ATH, supply)
+// ═══════════════════════════════════════
+async function fetchMarket() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false');
+    const d = await r.json();
+    const cur = currency.toLowerCase();
+    const p = d.market_data;
+    const mcap = p.market_cap[cur];
+    document.getElementById('d-mcap').textContent = mcap >= 1e12
+      ? sym() + (mcap/1e12).toFixed(2) + 'T'
+      : sym() + (mcap/1e9).toFixed(1) + 'B';
+    const vol = p.total_volume[cur];
+    document.getElementById('d-mcap-sub').textContent = '24h Vol: ' + (vol >= 1e9 ? sym()+(vol/1e9).toFixed(1)+'B' : sym()+(vol/1e6).toFixed(0)+'M');
+    const ath = p.ath[cur];
+    const cur_p = p.current_price[cur] || price();
+    const athPct = ((cur_p - ath) / ath * 100).toFixed(1);
+    document.getElementById('d-ath').textContent = fmtCur(ath);
+    document.getElementById('d-ath-pct').textContent = athPct + '%';
+    document.getElementById('d-ath-pct').className = 'cmono ' + (parseFloat(athPct) >= 0 ? 'up' : 'dn');
+    document.getElementById('d-52h').textContent = fmtCur(p.high_24h[cur]);
+    document.getElementById('d-52l').textContent = fmtCur(p.low_24h[cur]);
+    document.getElementById('d-supply').textContent = Math.round(p.circulating_supply/1e6*100)/100 + 'M BTC';
+    // Update 24h change
+    btcChange24h = p.price_change_percentage_24h || 0;
+    updatePriceUI();
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// FEAR & GREED
+// ═══════════════════════════════════════
+async function fetchFG() {
+  try {
+    const r = await fetch('https://api.alternative.me/fng/?limit=8');
+    const d = await r.json();
+    const now = d.data[0];
+    const yesterday = d.data[1];
+    const week = d.data[7];
+    const val = parseInt(now.value);
+    document.getElementById('fg-num').textContent = val;
+    document.getElementById('fg-label').textContent = now.value_classification;
+    const col = val >= 75 ? '#22c55e' : val >= 55 ? '#86efac' : val >= 45 ? '#fbbf24' : val >= 25 ? '#f97316' : '#ef4444';
+    document.getElementById('fg-circle').style.stroke = col;
+    document.getElementById('fg-label').style.color = col;
+    document.getElementById('fg-num').style.color = col;
+    const circumference = 2 * Math.PI * 32;
+    const offset = circumference - (val / 100) * circumference;
+    document.getElementById('fg-circle').style.strokeDashoffset = offset;
+    document.getElementById('fg-yesterday').textContent = yesterday.value + ' (' + yesterday.value_classification + ')';
+    document.getElementById('fg-week').textContent = week ? week.value + ' (' + week.value_classification + ')' : '–';
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// MEMPOOL FEES
+// ═══════════════════════════════════════
+async function fetchFees() {
+  try {
+    const r = await fetch('https://mempool.space/api/v1/fees/recommended');
+    const d = await r.json();
+    const p_usd = btcPrices.USD || 65000;
+    // A typical transaction is ~140 vBytes
+    const txBytes = 140;
+    function feeUSD(sat_vb) {
+      const sats = sat_vb * txBytes;
+      return '$' + (sats / 1e8 * p_usd).toFixed(2);
+    }
+    document.getElementById('fee-fast').textContent = d.fastestFee + ' sat/vB';
+    document.getElementById('fee-fast-usd').textContent = feeUSD(d.fastestFee);
+    document.getElementById('fee-mid').textContent = d.halfHourFee + ' sat/vB';
+    document.getElementById('fee-mid-usd').textContent = feeUSD(d.halfHourFee);
+    document.getElementById('fee-slow').textContent = d.economyFee + ' sat/vB';
+    document.getElementById('fee-slow-usd').textContent = feeUSD(d.economyFee);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// PRICE CHART (Binance)
+// ═══════════════════════════════════════
 async function loadChart(range, tabBtn) {
   if (tabBtn) {
-    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.ct').forEach(t => t.classList.remove('active'));
     tabBtn.classList.add('active');
   }
-  if (chartData[range]) { drawChart(chartData[range]); return; }
+  const key = range + currency;
+  if (chartData[key]) { drawChart(chartData[key]); return; }
 
-  const cfg = { '7D': {interval:'1d', limit:7}, '30D': {interval:'1d', limit:30}, '1Y': {interval:'1w', limit:52} };
-  const {interval, limit} = cfg[range];
+  const cfg = {
+    '7D':  { interval:'1d', limit:7 },
+    '30D': { interval:'1d', limit:30 },
+    '1Y':  { interval:'1w', limit:52 },
+    'ALL': { interval:'1M', limit:120 },
+  };
+  const { interval, limit } = cfg[range] || cfg['7D'];
+  const symbol = currency === 'EUR' ? 'BTCEUR' : 'BTCUSDT';
   try {
-    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`);
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
     const d = await r.json();
-    if (Array.isArray(d) && d.length) {
-      // Binance kline: [openTime, open, high, low, close, ...]
-      const raw = d.map(k => ({ t: k[0], v: parseFloat(k[4]) })); // close price
-      chartData[range] = raw;
+    if (Array.isArray(d)) {
+      const raw = d.map(k => ({ t: k[0], v: parseFloat(k[4]) }));
+      chartData[key] = raw;
       if (range === '7D' && raw.length >= 2) {
-        const prev = raw[raw.length - 2].v;
-        const curr = raw[raw.length - 1].v;
-        btcData.change24h = ((curr - prev) / prev) * 100;
-        updatePriceUI(btcData.price || curr, btcData.change24h);
+        btcChange24h = ((raw[raw.length-1].v - raw[raw.length-2].v) / raw[raw.length-2].v) * 100;
+        updatePriceUI();
       }
       drawChart(raw);
     }
-  } catch(e) { console.warn('Chart error:', e); }
+  } catch(e) {}
 }
 
 function drawChart(data) {
-  const canvas = document.getElementById('price-chart');
-  if (!canvas) return;
+  const canvas = document.getElementById('chart-canvas');
+  if (!canvas || !data?.length) return;
   const ctx = canvas.getContext('2d');
-  const W = canvas.offsetWidth, H = 140;
+  const W = canvas.offsetWidth || 800, H = 160;
   canvas.width = W * devicePixelRatio;
   canvas.height = H * devicePixelRatio;
   ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
 
-  if (!data || data.length < 2) return;
   const vals = data.map(d => d.v);
-  const min = Math.min(...vals), max = Math.max(...vals);
-  const range = max - min || 1;
-
-  const px = i => (i / (data.length - 1)) * W;
-  const py = v => H - 20 - ((v - min) / range) * (H - 30);
+  const min = Math.min(...vals), max = Math.max(...vals), rng = max - min || 1;
+  const px = i => (i / (data.length - 1)) * (W - 4) + 2;
+  const py = v => H - 20 - ((v - min) / rng) * (H - 28);
 
   // gradient fill
   const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgba(247,147,26,0.18)');
+  grad.addColorStop(0, 'rgba(247,147,26,.2)');
   grad.addColorStop(1, 'rgba(247,147,26,0)');
-  ctx.clearRect(0, 0, W, H);
   ctx.beginPath();
   ctx.moveTo(px(0), py(vals[0]));
   for (let i = 1; i < data.length; i++) ctx.lineTo(px(i), py(vals[i]));
-  ctx.lineTo(px(data.length - 1), H);
-  ctx.lineTo(0, H);
+  ctx.lineTo(px(data.length-1), H);
+  ctx.lineTo(px(0), H);
   ctx.closePath();
   ctx.fillStyle = grad;
   ctx.fill();
@@ -762,388 +767,384 @@ function drawChart(data) {
   ctx.moveTo(px(0), py(vals[0]));
   for (let i = 1; i < data.length; i++) ctx.lineTo(px(i), py(vals[i]));
   ctx.strokeStyle = '#f7931a';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 2;
   ctx.stroke();
 
   // labels
-  ctx.fillStyle = '#606060';
+  ctx.fillStyle = '#555';
   ctx.font = '10px Inter, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('$' + Math.round(min).toLocaleString(), 4, H - 4);
+  ctx.fillText(sym() + Math.round(min).toLocaleString(), 4, H - 4);
   ctx.textAlign = 'right';
-  ctx.fillText('$' + Math.round(max).toLocaleString(), W - 4, 14);
+  ctx.fillText(sym() + Math.round(max).toLocaleString(), W - 4, 14);
 }
 
-// ══════════════════════════════════════════
-//  NEWS (RSS via rss2json.com)
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
+// NEWS (Hacker News)
+// ═══════════════════════════════════════
 async function fetchNews() {
-  const results = [];
-  const since = Math.floor((Date.now() / 1000) - 30 * 86400); // last 30 days
-
-  // Hacker News Bitcoin stories (no CORS issues)
+  const since = Math.floor((Date.now() / 1000) - 30 * 86400);
   try {
-    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?query=bitcoin+crypto&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=30`);
-    const d = await r.json();
-    (d.hits || []).forEach(h => {
-      if (!h.title) return;
-      results.push({
+    const [r1, r2] = await Promise.all([
+      fetch(`https://hn.algolia.com/api/v1/search_by_date?query=bitcoin+crypto&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=40`),
+      fetch(`https://hn.algolia.com/api/v1/search_by_date?query=ethereum+blockchain+web3&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=20`),
+    ]);
+    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+    const hits = [...(d1.hits||[]), ...(d2.hits||[])];
+    const seen = new Set();
+    allNews = hits
+      .filter(h => h.title && !seen.has(h.title) && seen.add(h.title))
+      .map(h => ({
         title: h.title,
         link: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
-        source: 'Hacker News',
+        points: h.points || 0,
+        comments: h.num_comments || 0,
         pubDate: new Date(h.created_at),
-      });
-    });
-  } catch(e) { console.warn('HN news error:', e); }
-
-  // Hacker News ethereum/altcoin
-  try {
-    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?query=ethereum+blockchain+web3&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=20`);
-    const d = await r.json();
-    (d.hits || []).forEach(h => {
-      if (!h.title) return;
-      results.push({
-        title: h.title,
-        link: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
-        source: 'Hacker News',
-        pubDate: new Date(h.created_at),
-      });
-    });
+      }))
+      .sort((a,b) => b.pubDate - a.pubDate);
+    renderDashNews();
+    renderNewsSidebar();
   } catch(e) {}
-
-  results.sort((a,b) => b.pubDate - a.pubDate);
-  // deduplicate by title
-  const seen = new Set();
-  allNews = results.filter(n => {
-    if (seen.has(n.title)) return false;
-    seen.add(n.title); return true;
-  });
-  renderDashNews();
-  if (document.getElementById('view-newscal').classList.contains('active')) {
-    renderMonthCal();
-  }
 }
 
 function renderDashNews() {
-  const el = document.getElementById('dash-news');
-  const top5 = allNews.slice(0, 5);
-  if (!top5.length) {
-    el.innerHTML = '<div class="empty"><i class="fa-regular fa-newspaper"></i>Keine News geladen</div>';
-    return;
-  }
-  el.innerHTML = top5.map(n => `
+  const el = document.getElementById('d-news');
+  const top = allNews.slice(0, 6);
+  if (!top.length) { el.innerHTML='<div class="news-empty"><i class="fa-solid fa-circle-notch spin"></i> Lade News…</div>'; return; }
+  el.innerHTML = top.map(n => `
     <a class="news-item" href="${n.link}" target="_blank" rel="noopener">
-      <div class="news-source">${n.source}</div>
-      <div class="news-headline">${n.title}</div>
-      <div class="news-meta">${n.pubDate.toLocaleDateString('de-DE', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</div>
-    </a>
-  `).join('');
+      <div style="flex:1">
+        <div class="news-source-badge">Hacker News${n.points ? ' · ▲'+n.points : ''}</div>
+        <div class="news-headline">${n.title}</div>
+        <div class="news-meta">${n.pubDate.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'short'})} · ${n.comments} Kommentare</div>
+      </div>
+      <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--tx3);font-size:11px;flex-shrink:0;margin-top:3px"></i>
+    </a>`).join('');
 }
 
-// ══════════════════════════════════════════
-//  NEWS CALENDAR
-// ══════════════════════════════════════════
-let selectedNewsDay = null;
-
-function changeMonth(delta) {
-  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + delta, 1);
-  renderMonthCal();
+function renderNewsSidebar() {
+  const el = document.getElementById('news-sidebar');
+  if (!el) return;
+  const top = allNews.slice(0, 10);
+  el.innerHTML = top.map(n => `
+    <a class="news-item" href="${n.link}" target="_blank" rel="noopener" style="padding:10px 12px">
+      <div style="flex:1">
+        <div class="news-source-badge">HN${n.points ? ' · ▲'+n.points : ''}</div>
+        <div class="news-headline" style="font-size:13px">${n.title}</div>
+        <div class="news-meta">${n.pubDate.toLocaleDateString('de-DE',{day:'2-digit',month:'short'})}</div>
+      </div>
+    </a>`).join('');
 }
 
-function renderMonthCal() {
+// ═══════════════════════════════════════
+// NEWS CALENDAR
+// ═══════════════════════════════════════
+function chMonth(d) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+d, 1); renderNewsCal(); }
+
+function renderNewsCal() {
+  renderNewsSidebar();
   const y = calMonth.getFullYear(), m = calMonth.getMonth();
-  document.getElementById('newscal-title').textContent =
-    calMonth.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-
-  const grid = document.getElementById('month-grid');
+  document.getElementById('cal-title').textContent = calMonth.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
   const today = new Date(); today.setHours(0,0,0,0);
-
-  // Group news by date (YYYY-MM-DD)
   const newsByDay = {};
-  allNews.forEach(n => {
-    const key = n.pubDate.toISOString().slice(0,10);
-    if (!newsByDay[key]) newsByDay[key] = [];
-    newsByDay[key].push(n);
-  });
+  allNews.forEach(n => { const k = n.pubDate.toISOString().slice(0,10); (newsByDay[k]||(newsByDay[k]=[])).push(n); });
 
-  const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-  let html = days.map(d => `<div class="month-day-name">${d}</div>`).join('');
-
-  const first = new Date(y, m, 1);
-  let startDow = first.getDay() === 0 ? 6 : first.getDay() - 1; // Mon=0
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const daysInPrev = new Date(y, m, 0).getDate();
-
-  // Prev month fill
-  for (let i = startDow - 1; i >= 0; i--) {
-    const day = daysInPrev - i;
-    const date = new Date(y, m - 1, day);
-    const key = date.toISOString().slice(0,10);
-    html += dayCell(day, date, key, newsByDay, today, true);
+  const dows = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  let html = dows.map(d=>`<div class="dow">${d}</div>`).join('');
+  const first = new Date(y,m,1);
+  let startDow = first.getDay()===0?6:first.getDay()-1;
+  const dim = new Date(y,m+1,0).getDate();
+  const dip = new Date(y,m,0).getDate();
+  for (let i=startDow-1;i>=0;i--) {
+    const d2 = new Date(y,m-1,dip-i);
+    html += dayCell(dip-i, d2, newsByDay, today, true);
   }
-
-  // Current month
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(y, m, d);
-    const key = date.toISOString().slice(0,10);
-    html += dayCell(d, date, key, newsByDay, today, false);
+  for (let d2=1;d2<=dim;d2++) {
+    const date = new Date(y,m,d2);
+    html += dayCell(d2, date, newsByDay, today, false);
   }
-
-  // Next month fill
-  const total = startDow + daysInMonth;
-  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
-  for (let d = 1; d <= remaining; d++) {
-    const date = new Date(y, m + 1, d);
-    const key = date.toISOString().slice(0,10);
-    html += dayCell(d, date, key, newsByDay, today, true);
-  }
-
-  grid.innerHTML = html;
+  const total = startDow+dim;
+  const rem = total%7===0?0:7-(total%7);
+  for (let d2=1;d2<=rem;d2++) html += dayCell(d2, new Date(y,m+1,d2), newsByDay, today, true);
+  document.getElementById('month-grid').innerHTML = html;
 }
 
-function dayCell(num, date, key, newsByDay, today, otherMonth) {
-  const isToday = date.getTime() === today.getTime();
-  const news = newsByDay[key] || [];
-  const cls = [
-    'month-day',
-    otherMonth ? 'other-month' : '',
-    isToday ? 'today' : '',
-    news.length ? 'has-news' : '',
-  ].filter(Boolean).join(' ');
-  return `<div class="${cls}" onclick="selectNewsDay('${key}', this)" data-key="${key}">
-    <span class="day-num">${num}</span>
-    ${news.length ? `<span class="day-news-count">${news.length}</span>` : ''}
+function dayCell(num, date, newsByDay, today, other) {
+  const k = date.toISOString().slice(0,10);
+  const n = (newsByDay[k]||[]).length;
+  const cls = ['mday', other?'other':'', date.getTime()===today.getTime()?'today':'', n?'hasnews':''].filter(Boolean).join(' ');
+  return `<div class="${cls}" onclick="selectDay('${k}',this)">
+    <span class="mday-num">${num}</span>
+    ${n?`<span class="mday-cnt">${n}</span>`:''}
   </div>`;
 }
 
-function selectNewsDay(key, el) {
-  document.querySelectorAll('.month-day').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedNewsDay = key;
+function selectDay(key, el) {
+  document.querySelectorAll('.mday').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+  const d = new Date(key+'T12:00:00');
+  document.getElementById('news-panel-hdr').textContent = d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  const news = allNews.filter(n=>n.pubDate.toISOString().slice(0,10)===key);
+  const list = document.getElementById('news-panel-list');
+  if (!news.length) { list.innerHTML='<div class="news-empty">Keine News für diesen Tag</div>'; return; }
+  list.innerHTML = news.map(n=>`
+    <a class="news-item" href="${n.link}" target="_blank" rel="noopener" style="margin-bottom:6px;padding:10px 12px">
+      <div style="flex:1">
+        <div class="news-source-badge">HN${n.points?'·▲'+n.points:''}</div>
+        <div class="news-headline" style="font-size:13px">${n.title}</div>
+        <div class="news-meta">${n.pubDate.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr</div>
+      </div>
+    </a>`).join('');
+}
 
-  const d = new Date(key + 'T12:00:00');
-  document.getElementById('news-panel-title').textContent =
-    d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+// ═══════════════════════════════════════
+// PORTFOLIO
+// ═══════════════════════════════════════
+function addHolding() {
+  const btc = parseFloat(document.getElementById('p-inp-btc').value);
+  const entryPrice = parseFloat(document.getElementById('p-inp-price').value);
+  const label = document.getElementById('p-inp-label').value.trim() || 'Wallet';
+  if (!btc || btc <= 0) { toast('Bitte BTC-Menge eingeben'); return; }
+  if (!entryPrice || entryPrice <= 0) { toast('Bitte Einstiegspreis eingeben'); return; }
+  const holdings = getHoldings();
+  holdings.push({ btc, entryPrice, label, addedAt: Date.now() });
+  saveHoldings(holdings);
+  document.getElementById('p-inp-btc').value = '';
+  document.getElementById('p-inp-price').value = '';
+  document.getElementById('p-inp-label').value = '';
+  renderPortfolio();
+  toast('Position hinzugefügt ✓');
+}
 
-  const news = allNews.filter(n => n.pubDate.toISOString().slice(0,10) === key);
-  const list = document.getElementById('news-list');
-  if (!news.length) {
-    list.innerHTML = '<div class="news-loading">Keine News für diesen Tag</div>';
+function removeHolding(idx) {
+  const h = getHoldings();
+  h.splice(idx, 1);
+  saveHoldings(h);
+  renderPortfolio();
+  toast('Position gelöscht');
+}
+
+function renderPortfolio() {
+  const holdings = getHoldings();
+  const p = price();
+  const el = document.getElementById('p-holdings');
+
+  // Update sats rate display
+  document.getElementById('p-sats-rate').textContent = '100.000.000 Sats = ' + fmtCur(p);
+
+  if (!holdings.length) {
+    el.innerHTML = '<div class="empty"><i class="fa-solid fa-wallet"></i>Noch keine Positionen</div>';
+    document.getElementById('p-total').textContent = fmtCur(0);
+    document.getElementById('p-pnl').textContent = 'Füge deine erste Position hinzu';
+    document.getElementById('p-pnl').style.color = 'var(--tx3)';
+    document.getElementById('p-stats').style.display = 'none';
     return;
   }
-  list.innerHTML = news.map(n => `
-    <a class="news-item" href="${n.link}" target="_blank" rel="noopener">
-      <div class="news-source">${n.source}</div>
-      <div class="news-headline">${n.title}</div>
-      <div class="news-meta">${n.pubDate.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'})} Uhr</div>
-    </a>
-  `).join('');
+
+  let totalBTC = 0, totalInvested = 0, totalValue = 0;
+  el.innerHTML = holdings.map((h, i) => {
+    const curVal = h.btc * p;
+    const invested = h.btc * h.entryPrice;
+    const pnl = curVal - invested;
+    const pnlPct = ((curVal - invested) / invested * 100);
+    totalBTC += h.btc;
+    totalInvested += invested;
+    totalValue += curVal;
+    return `<div class="holding-item">
+      <div class="holding-left">
+        <div class="holding-label">${h.label}</div>
+        <div class="holding-detail">${fmtBTC(h.btc)} · Einstieg: ${sym()}${h.entryPrice.toLocaleString('de-DE')}</div>
+      </div>
+      <div class="holding-right">
+        <div class="holding-val">${fmtCur(curVal, 2)}</div>
+        <div class="holding-pnl ${pnl>=0?'up':'dn'}">${pnl>=0?'+':''}${fmtCur(pnl,2)} (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)</div>
+      </div>
+      <button class="del-btn" onclick="removeHolding(${i})" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+    </div>`;
+  }).join('');
+
+  // Hero totals
+  const totalPnL = totalValue - totalInvested;
+  const totalPct = totalInvested > 0 ? (totalPnL / totalInvested * 100) : 0;
+  document.getElementById('p-total').textContent = fmtCur(totalValue, 2);
+  const pnlEl = document.getElementById('p-pnl');
+  pnlEl.textContent = (totalPnL >= 0 ? '+' : '') + fmtCur(totalPnL, 2) + ' (' + (totalPct >= 0 ? '+' : '') + totalPct.toFixed(2) + '%)';
+  pnlEl.style.color = totalPnL >= 0 ? 'var(--gn)' : 'var(--rd)';
+  document.getElementById('p-stats').style.display = 'flex';
+  document.getElementById('p-invested').textContent = fmtCur(totalInvested, 2);
+  document.getElementById('p-gain').textContent = (totalPnL >= 0 ? '+' : '') + fmtCur(totalPnL, 2);
+  document.getElementById('p-gain').className = 'portfolio-stat-val ' + (totalPnL >= 0 ? 'up' : 'dn');
+  document.getElementById('p-btc').textContent = totalBTC.toFixed(8) + ' BTC';
+  const avgEntry = totalInvested / totalBTC;
+  document.getElementById('p-avg').textContent = fmtCur(avgEntry, 0);
 }
 
-// ══════════════════════════════════════════
-//  BLOCK CALENDAR (144 slots)
-// ══════════════════════════════════════════
-function changeDay(delta) {
-  currentDay0 = new Date(currentDay0.getTime() + delta * 864e5);
-  renderBlocks();
-}
-function goToday() { currentDay0 = dayStart(new Date()); renderBlocks(); }
+// ═══════════════════════════════════════
+// DCA CALCULATOR
+// ═══════════════════════════════════════
+async function calcDCA() {
+  const amount = parseFloat(document.getElementById('dca-amount').value);
+  const freq = document.getElementById('dca-freq').value;
+  const startStr = document.getElementById('dca-start').value;
+  const cur = document.getElementById('dca-cur').value;
+  if (!amount || !startStr) { toast('Bitte alle Felder ausfüllen'); return; }
 
-function renderBlocks() {
-  const notes = getNotes();
-  const isToday = currentDay0.toDateString() === new Date().toDateString();
+  // Build list of purchase dates
+  const start = new Date(startStr + '-01');
   const now = new Date();
-  const currentSlotIdx = isToday ? Math.floor((now.getHours() * 60 + now.getMinutes()) / 10) : -1;
-
-  // title
-  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
-  document.getElementById('cal-day-title').textContent = isToday
-    ? 'Heute · ' + currentDay0.toLocaleDateString('de-DE', opts)
-    : currentDay0.toLocaleDateString('de-DE', opts);
-
-  // base block height for this day (approximate)
-  const msPerBlock = 10 * 60 * 1000;
-  const dayMs = currentDay0.getTime();
-  const todayMs = dayStart(new Date()).getTime();
-  const blockBase = blockHeight ? Math.round(blockHeight - (todayMs - dayMs) / msPerBlock) : 0;
-
-  let html = '';
-  for (let i = 0; i < 144; i++) {
-    const h = String(Math.floor(i * 10 / 60)).padStart(2, '0');
-    const m = String((i * 10) % 60).padStart(2, '0');
-    const slot = `${currentDay0.toISOString().slice(0,10)}_${i}`;
-    const hasNote = !!notes[slot];
-    const isCurrent = i === currentSlotIdx;
-    const isFuture = isToday && i > currentSlotIdx;
-    const b = blockBase + i;
-
-    html += `<div class="block-slot${hasNote ? ' has-note' : ''}${isCurrent ? ' current' : ''}${isFuture ? ' future' : ''}"
-      onclick="openSlot('${slot}', '${h}:${m}', ${b})" title="${h}:${m} · Block ${b}">
-      ${hasNote ? '<div class="slot-dot"></div>' : ''}
-      <div class="slot-time">${h}:${m}</div>
-      <div class="slot-block">${b > 0 ? b : '–'}</div>
-    </div>`;
+  const dates = [];
+  let d = new Date(start);
+  while (d <= now) {
+    dates.push(new Date(d));
+    if (freq === 'weekly') d.setDate(d.getDate() + 7);
+    else if (freq === 'monthly') d.setMonth(d.getMonth() + 1);
+    else d.setFullYear(d.getFullYear() + 1);
   }
-  document.getElementById('blocks-grid').innerHTML = html;
+  if (!dates.length) { toast('Startdatum in der Zukunft?'); return; }
 
-  // Scroll current into view
-  if (currentSlotIdx >= 0) {
-    setTimeout(() => {
-      const el = document.querySelector('.block-slot.current');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
+  // Fetch historical prices (monthly intervals going back far enough)
+  const symbol = cur === 'EUR' ? 'BTCEUR' : 'BTCUSDT';
+  const monthsBack = Math.ceil((now - start) / (30.44 * 864e5)) + 2;
+  const cacheKey = 'dca_' + symbol;
+
+  let priceHistory;
+  if (dcaHistory[cacheKey]) {
+    priceHistory = dcaHistory[cacheKey];
+  } else {
+    try {
+      toast('Lade historische Daten…');
+      const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1M&limit=${Math.min(monthsBack+5, 1000)}`);
+      const data = await r.json();
+      // Map: yearMonth (YYYY-MM) -> close price
+      priceHistory = {};
+      data.forEach(k => {
+        const dt = new Date(k[0]);
+        const key = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+        priceHistory[key] = parseFloat(k[4]);
+      });
+      dcaHistory[cacheKey] = priceHistory;
+    } catch(e) { toast('Fehler beim Laden der Daten'); return; }
   }
+
+  // Simulate DCA
+  let totalInvested = 0, totalBTC = 0;
+  const chartPoints = [];
+  dates.forEach(date => {
+    const key = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0');
+    const p = priceHistory[key];
+    if (!p) return;
+    const btcBought = amount / p;
+    totalInvested += amount;
+    totalBTC += btcBought;
+    chartPoints.push({ date, invested: totalInvested, btc: totalBTC, val: totalBTC * p });
+  });
+
+  const curPrice = currency === 'EUR' ? btcPrices.EUR : btcPrices.USD;
+  const currentVal = totalBTC * (curPrice || chartPoints[chartPoints.length-1]?.val/totalBTC || 0);
+  const roi = ((currentVal - totalInvested) / totalInvested * 100);
+  const avgBuy = totalInvested / totalBTC;
+  const s = cur === 'EUR' ? '€' : '$';
+
+  document.getElementById('dca-r-invested').textContent = s + totalInvested.toLocaleString('de-DE');
+  document.getElementById('dca-r-value').textContent = s + Math.round(currentVal).toLocaleString('de-DE');
+  document.getElementById('dca-r-roi').textContent = (roi>=0?'+':'') + roi.toFixed(1) + '%';
+  document.getElementById('dca-r-roi').className = 'dca-stat-val ' + (roi>=0?'up':'dn');
+  document.getElementById('dca-r-btc').textContent = totalBTC.toFixed(6) + ' BTC';
+  document.getElementById('dca-r-avg').textContent = s + Math.round(avgBuy).toLocaleString('de-DE');
+  document.getElementById('dca-r-count').textContent = chartPoints.length;
+  document.getElementById('dca-result').style.display = 'block';
+  drawDCAChart(chartPoints, s);
+  toast('');
 }
 
-// ══════════════════════════════════════════
-//  SLOT MODAL
-// ══════════════════════════════════════════
-function openSlot(slotId, time, blockNum) {
-  activeSlot = slotId;
-  const notes = getNotes();
-  const note = notes[slotId] || '';
-  const [dateStr, idxStr] = slotId.split('_');
-  const d = new Date(dateStr + 'T00:00:00');
-  const dateLabel = d.toLocaleDateString('de-DE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+function drawDCAChart(points, s) {
+  const canvas = document.getElementById('dca-canvas');
+  if (!canvas || !points.length) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 600, H = 120;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
 
-  document.getElementById('modal-title').textContent = time + ' Uhr · Block ' + Number(blockNum).toLocaleString('de-DE');
-  document.getElementById('modal-meta').textContent = dateLabel;
-  document.getElementById('modal-ts-text').textContent = `${dateStr}T${time}:00 · #${blockNum}`;
-  document.getElementById('modal-note').value = note;
-  document.getElementById('modal-delete').style.display = note ? 'block' : 'none';
-  document.getElementById('modal').classList.add('open');
-  setTimeout(() => document.getElementById('modal-note').focus(), 100);
+  const vals = points.map(p => p.val);
+  const invs = points.map(p => p.invested);
+  const min = Math.min(...invs), max = Math.max(...vals), rng = max-min||1;
+  const px = i => (i/(points.length-1))*(W-4)+2;
+  const py = v => H-14-((v-min)/rng)*(H-20);
+
+  // Invested line (dashed)
+  ctx.beginPath();
+  ctx.setLineDash([4,4]);
+  ctx.moveTo(px(0), py(invs[0]));
+  invs.forEach((v,i) => ctx.lineTo(px(i), py(v)));
+  ctx.strokeStyle = 'rgba(147,147,147,.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Value area
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(247,147,26,.25)');
+  grad.addColorStop(1,'rgba(247,147,26,0)');
+  ctx.beginPath();
+  ctx.moveTo(px(0), py(vals[0]));
+  vals.forEach((v,i) => ctx.lineTo(px(i), py(v)));
+  ctx.lineTo(px(vals.length-1), H);
+  ctx.lineTo(px(0), H);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Value line
+  ctx.beginPath();
+  ctx.moveTo(px(0), py(vals[0]));
+  vals.forEach((v,i) => ctx.lineTo(px(i), py(v)));
+  ctx.strokeStyle = '#f7931a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='#555'; ctx.font='10px Inter,sans-serif';
+  ctx.textAlign='left'; ctx.fillText(s+Math.round(min).toLocaleString(), 4, H-2);
+  ctx.textAlign='right'; ctx.fillText(s+Math.round(max).toLocaleString(), W-4, 12);
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  activeSlot = null;
-}
-
-function saveNote() {
-  if (!activeSlot) return;
-  const val = document.getElementById('modal-note').value.trim();
-  const notes = getNotes();
-  if (val) notes[activeSlot] = val;
-  else delete notes[activeSlot];
-  setNotes(notes);
-  closeModal();
-  renderBlocks();
-  renderRecentNotes();
-  showToast('Notiz gespeichert ✓');
-}
-
-function deleteNote() {
-  if (!activeSlot) return;
-  const notes = getNotes();
-  delete notes[activeSlot];
-  setNotes(notes);
-  closeModal();
-  renderBlocks();
-  renderRecentNotes();
-  showToast('Notiz gelöscht');
-}
-
-function copyTimestamp() {
-  const text = document.getElementById('modal-ts-text').textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('Timestamp kopiert'));
-}
-
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-  if ((e.key === 'Enter') && (e.metaKey || e.ctrlKey)) {
-    if (document.getElementById('modal').classList.contains('open')) saveNote();
-  }
-});
-
-// ══════════════════════════════════════════
-//  RECENT NOTES
-// ══════════════════════════════════════════
-function renderRecentNotes() {
-  const notes = getNotes();
-  const el = document.getElementById('recent-notes');
-  const entries = Object.entries(notes).sort((a,b) => b[0].localeCompare(a[0])).slice(0, 5);
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty"><i class="fa-regular fa-note-sticky"></i>Noch keine Notizen</div>';
-    return;
-  }
-  el.innerHTML = entries.map(([slot, text]) => {
-    const [dateStr, idx] = slot.split('_');
-    const h = String(Math.floor(idx * 10 / 60)).padStart(2,'0');
-    const m = String((idx * 10) % 60).padStart(2,'0');
-    const d = new Date(dateStr + 'T00:00:00');
-    return `<div class="note-item" onclick="">
-      <div class="note-slot">${dateStr} · ${h}:${m}</div>
-      <div class="note-text">${text}</div>
-      <div class="note-date">${d.toLocaleDateString('de-DE', {weekday:'short', day:'2-digit', month:'short'})}</div>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════
-//  JOURNAL
-// ══════════════════════════════════════════
-function renderJournal() {
-  const notes = getNotes();
-  const el = document.getElementById('journal-grid');
-  const entries = Object.entries(notes).sort((a,b) => b[0].localeCompare(a[0]));
-  if (!entries.length) {
-    el.innerHTML = `<div class="empty" style="grid-column:1/-1">
-      <i class="fa-regular fa-note-sticky"></i>
-      Noch keine Notizen.<br>Klicke auf einen Block-Slot um anzufangen.
-    </div>`;
-    return;
-  }
-  el.innerHTML = entries.map(([slot, text]) => {
-    const [dateStr, idx] = slot.split('_');
-    const h = String(Math.floor(idx * 10 / 60)).padStart(2,'0');
-    const m = String((idx * 10) % 60).padStart(2,'0');
-    const d = new Date(dateStr + 'T00:00:00');
-    return `<div class="journal-entry" onclick="switchView('blocks', null); currentDay0=dayStart(new Date('${dateStr}T00:00:00')); renderBlocks(); openSlot('${slot}','${h}:${m}', 0)">
-      <div class="journal-entry-slot">Block-Slot · ${dateStr} ${h}:${m}</div>
-      <div class="journal-entry-text">${text}</div>
-      <div class="journal-entry-date">${d.toLocaleDateString('de-DE', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</div>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
 let toastTimer;
-function showToast(msg) {
+function toast(msg) {
   const t = document.getElementById('toast');
+  if (!msg) { t.classList.remove('show'); return; }
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  if (msg !== 'Lade historische Daten…') toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ══════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
 async function init() {
-  renderBlocks();
-  renderRecentNotes();
-  renderMonthCal();
+  // Parallel init
+  renderPortfolio();
+  renderNewsCal();
 
-  // Parallel fetches
   await Promise.all([
     fetchPrice(),
     fetchBlock(),
     fetchNews(),
     loadChart('7D', null),
+    fetchFG(),
+    fetchFees(),
+    fetchMarket(),
   ]);
 }
 
 init();
-// Refresh price every 60s
 setInterval(fetchPrice, 60000);
-setInterval(fetchBlock, 120000);
+setInterval(fetchFees, 120000);
+setInterval(fetchBlock, 180000);
 </script>
 </body>
 </html>
