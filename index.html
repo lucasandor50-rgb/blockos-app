@@ -3,912 +3,839 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SatsNews — Bitcoin Feed</title>
+  <title>KryptoCheck — Krypto-Börsen Vergleich 2025</title>
+  <meta name="description" content="Vergleiche die besten Krypto-Börsen: Gebühren, Sicherheit, BaFin-Regulierung. Kostenlos & unabhängig."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
-      --bg:    #000;
-      --s1:    #0a0a0a;
-      --s2:    #111;
-      --s3:    #181818;
-      --bd:    #1f1f1f;
-      --bd2:   #2a2a2a;
-      --tx:    #e7e9ea;
-      --tx2:   #71767b;
-      --tx3:   #3a3a3a;
+      --bg:    #f4f5f7;
+      --white: #ffffff;
+      --s1:    #f9fafb;
+      --bd:    #e5e7eb;
+      --bd2:   #d1d5db;
+      --tx:    #111827;
+      --tx2:   #6b7280;
+      --tx3:   #9ca3af;
       --or:    #f7931a;
+      --orb:   #e8820e;
       --ory:   rgba(247,147,26,.1);
-      --green: #00ba7c;
-      --red:   #f4212e;
+      --green: #059669;
+      --red:   #dc2626;
+      --blue:  #2563eb;
+      --purple:#7c3aed;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow2: 0 4px 16px rgba(0,0,0,.1);
     }
-    html,body { height:100%; background:var(--bg); color:var(--tx); font-family:'Inter',sans-serif; overflow-x:hidden; }
-    a { color:inherit; text-decoration:none; }
-    button { font-family:inherit; }
+    html,body { background:var(--bg); color:var(--tx); font-family:'Inter',sans-serif; min-height:100%; }
 
-    /* ── LAYOUT ── */
-    #layout { display:flex; max-width:1280px; margin:0 auto; min-height:100vh; }
-
-    /* ── LEFT SIDEBAR ── */
-    #sidebar {
-      width:260px; flex-shrink:0; position:sticky; top:0; height:100vh;
-      display:flex; flex-direction:column; padding:8px 12px; overflow-y:auto; overflow-x:hidden;
+    /* ── HEADER ── */
+    header {
+      background:var(--white); border-bottom:1px solid var(--bd);
+      position:sticky; top:0; z-index:100;
+      box-shadow:0 1px 4px rgba(0,0,0,.06);
+    }
+    .header-inner {
+      max-width:1200px; margin:0 auto; padding:0 20px;
+      height:62px; display:flex; align-items:center; gap:32px;
     }
     .logo {
-      display:flex; align-items:center; gap:10px;
-      padding:14px 12px; font-size:24px; font-weight:900; color:var(--or);
-      letter-spacing:-1px; cursor:default; margin-bottom:4px;
+      font-size:20px; font-weight:900; color:var(--or);
+      letter-spacing:-0.5px; white-space:nowrap; cursor:default;
     }
-    .logo-icon { font-size:26px; }
+    .logo span { color:var(--tx); font-weight:500; }
 
-    .nav-item {
-      display:flex; align-items:center; gap:14px;
-      padding:12px 16px; border-radius:30px; cursor:pointer;
-      font-size:19px; font-weight:500; color:var(--tx);
-      transition:background .15s, color .15s;
-      border:none; background:none; width:100%; text-align:left;
+    nav { display:flex; gap:4px; }
+    .nav-btn {
+      background:none; border:none; cursor:pointer;
+      padding:7px 14px; border-radius:8px; font-size:14px;
+      font-weight:500; color:var(--tx2); transition:all .15s;
     }
-    .nav-item:hover { background:rgba(255,255,255,.06); }
-    .nav-item.active { font-weight:700; color:var(--or); }
-    .nav-item.active .nav-ico { filter: drop-shadow(0 0 6px var(--or)); }
-    .nav-ico { font-size:22px; width:26px; text-align:center; }
-    .nav-lbl { font-size:17px; }
+    .nav-btn:hover { background:var(--bg); color:var(--tx); }
+    .nav-btn.on { background:var(--ory); color:var(--or); font-weight:700; }
 
-    #sidebar-btc {
-      margin:12px 0; padding:14px 16px;
-      background:var(--s2); border:1px solid var(--bd); border-radius:14px;
+    .header-right { margin-left:auto; display:flex; align-items:center; gap:16px; }
+    .live-price {
+      display:flex; align-items:center; gap:8px;
+      background:var(--bg); border:1px solid var(--bd);
+      border-radius:8px; padding:6px 12px; font-size:13px;
     }
-    .sb-price { font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--tx); }
-    .sb-change { font-size:12px; margin-top:2px; }
-    .sb-change.up { color:var(--green); }
-    .sb-change.dn { color:var(--red); }
-    .sb-label { font-size:10px; color:var(--tx2); margin-bottom:4px; letter-spacing:.5px; }
+    .lp-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--tx); }
+    .lp-chg { font-weight:600; font-size:12px; }
+    .lp-chg.up { color:var(--green); }
+    .lp-chg.dn { color:var(--red); }
 
-    /* ── MAIN FEED ── */
-    #feed-col {
-      flex:1; border-left:1px solid var(--bd); border-right:1px solid var(--bd);
-      min-height:100vh;
-    }
+    /* ── PAGE ── */
+    .page { display:none; }
+    .page.on { display:block; }
 
-    #feed-top {
-      position:sticky; top:0; z-index:20;
-      background:rgba(0,0,0,.85); backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--bd);
-    }
-    #feed-title-row {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 18px 0;
-    }
-    #feed-title { font-size:20px; font-weight:800; }
-    #refresh-btn {
-      background:none; border:1px solid var(--bd2); border-radius:20px;
-      color:var(--tx2); font-size:12px; padding:5px 12px; cursor:pointer;
-      transition:all .15s;
-    }
-    #refresh-btn:hover { border-color:var(--or); color:var(--or); }
+    .page-inner { max-width:1200px; margin:0 auto; padding:28px 20px 60px; }
 
-    /* Category tabs */
-    #cat-tabs {
-      display:flex; overflow-x:auto; gap:0;
-      scrollbar-width:none;
+    /* ── HERO ── */
+    .hero {
+      background:linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+      padding:52px 20px;
     }
-    #cat-tabs::-webkit-scrollbar { display:none; }
-    .tab {
-      flex:none; padding:14px 22px;
-      font-size:14px; font-weight:500; color:var(--tx2);
-      cursor:pointer; border-bottom:2px solid transparent;
-      transition:color .15s, border-color .15s;
-      white-space:nowrap;
+    .hero-inner { max-width:1200px; margin:0 auto; }
+    .hero-tag {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--ory); border:1px solid rgba(247,147,26,.3);
+      color:var(--or); font-size:12px; font-weight:700;
+      padding:4px 12px; border-radius:20px; margin-bottom:16px;
+      letter-spacing:.5px;
     }
-    .tab:hover { color:var(--tx); background:rgba(255,255,255,.03); }
-    .tab.on { color:var(--tx); font-weight:700; border-bottom-color:var(--or); }
+    .hero h1 {
+      font-size:42px; font-weight:900; color:#fff;
+      line-height:1.15; letter-spacing:-1px; margin-bottom:12px;
+    }
+    .hero h1 em { font-style:normal; color:var(--or); }
+    .hero p { font-size:17px; color:#94a3b8; margin-bottom:28px; max-width:560px; line-height:1.6; }
+    .hero-stats { display:flex; gap:32px; flex-wrap:wrap; }
+    .hero-stat { }
+    .hs-num { font-size:26px; font-weight:800; color:#fff; line-height:1; }
+    .hs-lbl { font-size:12px; color:#64748b; margin-top:2px; }
 
-    /* New posts banner */
-    #new-banner {
-      display:none; margin:12px 16px;
-      background:var(--or); color:#000; font-size:13px; font-weight:700;
-      padding:10px 18px; border-radius:30px; cursor:pointer; text-align:center;
-      animation:slide-in .3s ease;
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      background:var(--white); border:1px solid var(--bd);
+      border-radius:14px; padding:16px 20px; margin-bottom:24px;
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+      box-shadow:var(--shadow);
     }
-    @keyframes slide-in { from { transform:translateY(-20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-    #new-banner.show { display:block; }
+    .filter-label { font-size:13px; font-weight:600; color:var(--tx2); white-space:nowrap; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; }
+    .ftag {
+      background:var(--bg); border:1.5px solid var(--bd);
+      border-radius:20px; padding:6px 14px; font-size:13px;
+      font-weight:500; color:var(--tx2); cursor:pointer;
+      transition:all .15s; white-space:nowrap;
+    }
+    .ftag:hover { border-color:var(--or); color:var(--or); }
+    .ftag.on { background:var(--ory); border-color:var(--or); color:var(--or); font-weight:700; }
+    .filter-sort {
+      margin-left:auto; display:flex; align-items:center; gap:8px;
+    }
+    .sort-label { font-size:13px; color:var(--tx2); }
+    #sort-sel {
+      border:1.5px solid var(--bd); border-radius:8px; padding:6px 10px;
+      font-size:13px; background:var(--white); color:var(--tx);
+      outline:none; cursor:pointer;
+    }
+    #sort-sel:focus { border-color:var(--or); }
 
-    /* Search bar */
-    #search-wrap {
-      padding:10px 16px;
-      position:relative;
-    }
-    #search-inp {
-      width:100%; background:var(--s2); border:1px solid var(--bd);
-      border-radius:30px; padding:10px 16px 10px 40px;
-      color:var(--tx); font-size:14px; outline:none;
-      transition:border-color .15s;
-    }
-    #search-inp::placeholder { color:var(--tx2); }
-    #search-inp:focus { border-color:var(--or); }
-    #search-ico { position:absolute; left:28px; top:50%; transform:translateY(-50%); color:var(--tx2); font-size:15px; pointer-events:none; }
+    /* ── SECTION HEADER ── */
+    .sec-hdr { display:flex; align-items:baseline; gap:10px; margin-bottom:16px; }
+    .sec-title { font-size:22px; font-weight:800; color:var(--tx); }
+    .sec-count { font-size:14px; color:var(--tx2); }
 
-    /* Feed items */
-    #feed { }
+    /* ── EXCHANGE CARDS ── */
+    #exchange-list { display:flex; flex-direction:column; gap:14px; }
 
-    /* Skeleton */
-    .skel {
-      padding:16px 18px; border-bottom:1px solid var(--bd);
-      display:flex; gap:12px; animation:pulse 1.4s ease-in-out infinite;
+    .ex-card {
+      background:var(--white); border:1.5px solid var(--bd);
+      border-radius:16px; overflow:hidden;
+      box-shadow:var(--shadow); transition:box-shadow .2s, border-color .2s;
     }
-    @keyframes pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
-    .skel-ava { width:40px; height:40px; border-radius:50%; background:var(--s3); flex-shrink:0; }
-    .skel-body { flex:1; display:flex; flex-direction:column; gap:8px; }
-    .skel-line { height:12px; background:var(--s3); border-radius:6px; }
+    .ex-card:hover { box-shadow:var(--shadow2); border-color:var(--bd2); }
+    .ex-card.top-pick { border-color:var(--or); }
 
-    /* Card */
-    .card {
-      display:flex; gap:12px; padding:14px 18px;
-      border-bottom:1px solid var(--bd);
-      cursor:pointer; transition:background .12s;
-      text-decoration:none; color:inherit;
-    }
-    .card:hover { background:rgba(255,255,255,.02); }
-    .card.unread { }
-    .card-ava {
-      width:42px; height:42px; border-radius:50%; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:16px; font-weight:800; color:#000; letter-spacing:-0.5px;
-    }
-    .card-body { flex:1; min-width:0; }
-    .card-meta {
+    .ex-top-badge {
+      background:var(--or); color:#000;
+      font-size:11px; font-weight:800; padding:5px 16px;
+      letter-spacing:.5px; text-transform:uppercase;
       display:flex; align-items:center; gap:6px;
-      font-size:14px; margin-bottom:4px; flex-wrap:wrap;
     }
-    .card-source { font-weight:700; color:var(--tx); }
-    .card-handle { color:var(--tx2); font-size:13px; }
-    .card-dot { color:var(--tx3); }
-    .card-time { color:var(--tx2); font-size:13px; }
-    .card-badge {
-      background:var(--ory); color:var(--or);
-      font-size:10px; font-weight:700; padding:1px 7px;
-      border-radius:20px; border:1px solid rgba(247,147,26,.25);
-      letter-spacing:.3px;
+
+    .ex-body { padding:20px 24px; display:flex; align-items:center; gap:20px; }
+
+    .ex-logo {
+      width:56px; height:56px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; flex-shrink:0;
+      background:var(--bg); border:1px solid var(--bd);
     }
-    .card-title {
-      font-size:15px; line-height:1.45; color:var(--tx);
-      margin-bottom:8px; font-weight:400;
+
+    .ex-main { flex:1; min-width:0; }
+    .ex-name-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
+    .ex-name { font-size:19px; font-weight:800; color:var(--tx); }
+    .ex-rating { display:flex; align-items:center; gap:4px; }
+    .stars { color:#fbbf24; font-size:14px; letter-spacing:1px; }
+    .rating-num { font-size:13px; font-weight:700; color:var(--tx2); }
+    .badge {
+      font-size:10px; font-weight:700; padding:2px 8px;
+      border-radius:20px; letter-spacing:.3px;
     }
-    .card-title strong { font-weight:600; }
-    .card-url {
-      display:inline-flex; align-items:center; gap:5px;
-      font-size:13px; color:var(--tx2); margin-bottom:10px;
-      background:var(--s2); border:1px solid var(--bd); border-radius:6px;
-      padding:3px 9px;
+    .badge-bafin { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+    .badge-eu    { background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd; }
+    .badge-new   { background:#fce7f3; color:#9d174d; border:1px solid #f9a8d4; }
+
+    .ex-tagline { font-size:14px; color:var(--tx2); margin-bottom:12px; }
+
+    .ex-stats {
+      display:flex; gap:24px; flex-wrap:wrap;
     }
-    .card-actions {
-      display:flex; gap:4px; margin-top:4px;
+    .ex-stat { }
+    .es-val { font-size:16px; font-weight:700; color:var(--tx); font-family:'JetBrains Mono',monospace; }
+    .es-lbl { font-size:11px; color:var(--tx2); margin-top:1px; }
+
+    .ex-tags { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+    .ex-tag {
+      font-size:11px; padding:3px 9px; border-radius:20px; font-weight:500;
+      background:var(--bg); color:var(--tx2); border:1px solid var(--bd);
     }
-    .act {
-      display:flex; align-items:center; gap:5px;
-      background:none; border:none; color:var(--tx2);
-      font-size:13px; padding:6px 10px; border-radius:20px;
+
+    .ex-right {
+      display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+      flex-shrink:0; min-width:180px;
+    }
+    .ex-offer {
+      background:var(--ory); border:1px solid rgba(247,147,26,.25);
+      color:var(--or); font-size:12px; font-weight:600;
+      padding:6px 12px; border-radius:8px; text-align:center;
+      width:100%;
+    }
+    .btn-open {
+      display:block; width:100%; text-align:center;
+      background:var(--or); color:#000; font-weight:800;
+      font-size:15px; padding:13px 20px; border-radius:12px;
+      border:none; cursor:pointer; transition:all .15s;
+      text-decoration:none; white-space:nowrap;
+    }
+    .btn-open:hover { background:var(--orb); transform:translateY(-1px); box-shadow:0 4px 14px rgba(247,147,26,.4); }
+    .btn-open-ghost {
+      display:block; width:100%; text-align:center;
+      background:none; color:var(--tx2); font-size:12px;
+      border:none; cursor:pointer; padding:4px;
+    }
+    .btn-open-ghost:hover { color:var(--tx); text-decoration:underline; }
+
+    /* Pros/Cons */
+    .ex-pc { padding:0 24px 20px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .pc-col { }
+    .pc-title { font-size:11px; font-weight:700; color:var(--tx2); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .pc-item { display:flex; align-items:flex-start; gap:6px; font-size:13px; color:var(--tx); margin-bottom:4px; line-height:1.4; }
+    .pc-dot { flex-shrink:0; margin-top:3px; font-size:11px; }
+    .pc-dot.pro { color:var(--green); }
+    .pc-dot.con { color:var(--red); }
+
+    /* ── HARDWARE WALLET CARDS ── */
+    #wallet-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+
+    .wcard {
+      background:var(--white); border:1.5px solid var(--bd);
+      border-radius:16px; padding:24px; box-shadow:var(--shadow);
+      transition:all .2s; display:flex; flex-direction:column; gap:14px;
+    }
+    .wcard:hover { box-shadow:var(--shadow2); border-color:var(--bd2); }
+    .wcard.top-pick { border-color:var(--or); }
+
+    .wcard-icon { font-size:40px; }
+    .wcard-name { font-size:18px; font-weight:800; }
+    .wcard-price { font-size:24px; font-weight:900; color:var(--or); }
+    .wcard-tagline { font-size:13px; color:var(--tx2); line-height:1.5; }
+    .wcard-specs { display:flex; flex-direction:column; gap:4px; }
+    .wspec { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; border-bottom:1px solid var(--bd); }
+    .wspec:last-child { border:none; }
+    .wspec-lbl { color:var(--tx2); }
+    .wspec-val { font-weight:600; }
+    .btn-wallet {
+      display:block; text-align:center; background:var(--tx);
+      color:#fff; font-weight:700; font-size:14px;
+      padding:11px; border-radius:10px; border:none;
+      cursor:pointer; transition:all .15s; text-decoration:none;
+      margin-top:auto;
+    }
+    .btn-wallet:hover { background:#000; transform:translateY(-1px); }
+    .wcard.top-pick .btn-wallet { background:var(--or); color:#000; }
+    .wcard.top-pick .btn-wallet:hover { background:var(--orb); }
+
+    /* ── GUIDE CARDS ── */
+    .guide-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-bottom:32px; }
+    .gcard {
+      background:var(--white); border:1px solid var(--bd);
+      border-radius:14px; padding:22px; box-shadow:var(--shadow);
       cursor:pointer; transition:all .15s;
     }
-    .act:hover { background:rgba(247,147,26,.1); color:var(--or); }
-    .act.liked { color:var(--or); }
-    .act.bookmarked { color:var(--or); }
-    .act .act-ico { font-size:17px; }
-    .act-share { margin-left:auto; }
+    .gcard:hover { box-shadow:var(--shadow2); border-color:var(--bd2); transform:translateY(-2px); }
+    .gc-ico { font-size:32px; margin-bottom:12px; }
+    .gc-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+    .gc-desc { font-size:13px; color:var(--tx2); line-height:1.5; }
+    .gc-link { font-size:13px; color:var(--or); font-weight:600; margin-top:10px; }
 
-    /* Load more */
-    #load-more-wrap { padding:20px; text-align:center; }
-    #load-more-btn {
-      background:none; border:1px solid var(--bd2);
-      border-radius:30px; color:var(--or); font-size:14px; font-weight:600;
-      padding:10px 28px; cursor:pointer; transition:all .15s;
+    /* ── MARKET WIDGET ── */
+    .market-bar {
+      display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
+      margin-bottom:24px; scrollbar-width:none;
     }
-    #load-more-btn:hover { background:var(--ory); border-color:var(--or); }
-    #load-more-btn:disabled { opacity:.4; cursor:default; }
-
-    /* Empty state */
-    #empty { padding:60px 20px; text-align:center; color:var(--tx2); }
-    #empty .e-ico { font-size:48px; margin-bottom:12px; }
-    #empty .e-title { font-size:20px; font-weight:700; color:var(--tx); margin-bottom:6px; }
-
-    /* ── RIGHT SIDEBAR ── */
-    #right-col {
-      width:320px; flex-shrink:0;
-      position:sticky; top:0; height:100vh;
-      overflow-y:auto; padding:14px 16px;
-      display:flex; flex-direction:column; gap:14px;
+    .market-bar::-webkit-scrollbar { display:none; }
+    .mtoken {
+      background:var(--white); border:1px solid var(--bd);
+      border-radius:10px; padding:10px 14px; flex-shrink:0;
+      box-shadow:var(--shadow); min-width:120px;
     }
-    #right-col::-webkit-scrollbar { width:3px; }
-    #right-col::-webkit-scrollbar-thumb { background:var(--bd2); }
+    .mt-name { font-size:12px; font-weight:700; color:var(--tx2); margin-bottom:2px; }
+    .mt-price { font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+    .mt-chg { font-size:12px; font-weight:600; margin-top:1px; }
+    .mt-chg.up { color:var(--green); }
+    .mt-chg.dn { color:var(--red); }
 
-    .widget {
-      background:var(--s2); border:1px solid var(--bd);
-      border-radius:14px; padding:16px; overflow:hidden;
+    /* ── TRUST BADGES ── */
+    .trust-bar {
+      display:flex; gap:20px; align-items:center; flex-wrap:wrap;
+      padding:16px 0; border-top:1px solid var(--bd); margin-top:8px;
+      font-size:13px; color:var(--tx2);
     }
-    .w-title { font-size:18px; font-weight:800; margin-bottom:14px; }
+    .trust-item { display:flex; align-items:center; gap:6px; font-weight:500; }
 
-    /* BTC price widget */
-    #btc-price-big {
-      font-family:'JetBrains Mono',monospace;
-      font-size:32px; font-weight:700; line-height:1;
+    /* ── FOOTER ── */
+    footer {
+      background:var(--white); border-top:1px solid var(--bd);
+      padding:24px 20px; text-align:center;
     }
-    .btc-change-row { display:flex; align-items:center; gap:12px; margin-top:8px; }
-    .btc-chg { font-size:14px; font-weight:700; }
-    .btc-chg.up { color:var(--green); }
-    .btc-chg.dn { color:var(--red); }
-    .btc-meta { font-size:12px; color:var(--tx2); margin-top:12px; display:flex; flex-direction:column; gap:4px; }
-    .btc-meta-row { display:flex; justify-content:space-between; }
-    .btc-meta-val { font-family:'JetBrains Mono',monospace; color:var(--tx); }
-
-    /* Trending */
-    .trend-item {
-      padding:10px 0; border-bottom:1px solid var(--bd); cursor:pointer;
-    }
-    .trend-item:last-child { border:none; }
-    .trend-item:hover .trend-word { color:var(--or); }
-    .trend-num { font-size:11px; color:var(--tx2); margin-bottom:1px; }
-    .trend-word { font-size:15px; font-weight:700; transition:color .15s; }
-    .trend-count { font-size:12px; color:var(--tx2); margin-top:1px; }
-
-    /* Sources legend */
-    .source-row {
-      display:flex; align-items:center; gap:10px; padding:6px 0;
-      font-size:13px; color:var(--tx2); cursor:pointer;
-      transition:color .15s;
-    }
-    .source-row:hover { color:var(--tx); }
-    .source-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .footer-inner { max-width:1200px; margin:0 auto; }
+    .footer-disclaimer { font-size:12px; color:var(--tx3); line-height:1.6; max-width:700px; margin:0 auto 12px; }
+    .footer-links { display:flex; gap:16px; justify-content:center; font-size:13px; color:var(--tx2); }
+    .footer-links a { color:var(--tx2); text-decoration:none; }
+    .footer-links a:hover { color:var(--or); }
 
     /* ── MOBILE ── */
-    @media (max-width:1000px) {
-      #right-col { display:none; }
-      #feed-col { border-right:none; }
+    @media (max-width:900px) {
+      .ex-body { flex-wrap:wrap; }
+      .ex-right { min-width:unset; width:100%; flex-direction:row; }
+      .btn-open { flex:1; }
+      .ex-pc { grid-template-columns:1fr; }
+      .hero h1 { font-size:30px; }
     }
-    @media (max-width:680px) {
-      #sidebar { display:none; }
-      #layout { max-width:100%; }
-      #mobile-nav {
-        position:fixed; bottom:0; left:0; right:0; z-index:50;
-        background:rgba(0,0,0,.92); backdrop-filter:blur(12px);
-        border-top:1px solid var(--bd);
-        display:flex; height:54px;
-      }
-      .mnav {
-        flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:1px; border:none; background:none; color:var(--tx2);
-        font-size:9px; font-weight:600; cursor:pointer; transition:color .15s;
-      }
-      .mnav .mico { font-size:20px; }
-      .mnav.on { color:var(--or); }
-      #feed-col { margin-bottom:54px; }
-      .nav-lbl { font-size:15px; }
-      .card-title { font-size:14px; }
-    }
-    @media (min-width:681px) {
-      #mobile-nav { display:none; }
+    @media (max-width:600px) {
+      .hero { padding:36px 20px; }
+      .header-inner { gap:16px; }
+      nav { display:none; }
+      .ex-stats { gap:14px; }
+      .filter-sort { width:100%; }
+      .header-right { gap:8px; }
+      .live-price .lp-chg { display:none; }
     }
   </style>
 </head>
 <body>
 
-<div id="layout">
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">Krypto<span>Check</span></div>
+    <nav>
+      <button class="nav-btn on" onclick="showPage('boersen')">🏦 Börsen</button>
+      <button class="nav-btn" onclick="showPage('wallets')">🔒 Wallets</button>
+      <button class="nav-btn" onclick="showPage('ratgeber')">📚 Ratgeber</button>
+    </nav>
+    <div class="header-right">
+      <div class="live-price">
+        <span>₿</span>
+        <span class="lp-val" id="h-btc">—</span>
+        <span class="lp-chg" id="h-chg">—</span>
+      </div>
+    </div>
+  </div>
+</header>
 
-  <!-- ── LEFT SIDEBAR ── -->
-  <div id="sidebar">
-    <div class="logo"><span class="logo-icon">₿</span> SatsNews</div>
+<!-- ═══ BÖRSEN PAGE ═══ -->
+<div class="page on" id="page-boersen">
 
-    <button class="nav-item active" data-cat="top" onclick="setTab('top',this)">
-      <span class="nav-ico">🔥</span><span class="nav-lbl">Trending</span>
-    </button>
-    <button class="nav-item" data-cat="bitcoin" onclick="setTab('bitcoin',this)">
-      <span class="nav-ico">₿</span><span class="nav-lbl">Bitcoin</span>
-    </button>
-    <button class="nav-item" data-cat="lightning" onclick="setTab('lightning',this)">
-      <span class="nav-ico">⚡</span><span class="nav-lbl">Lightning</span>
-    </button>
-    <button class="nav-item" data-cat="ethereum" onclick="setTab('ethereum',this)">
-      <span class="nav-ico">Ξ</span><span class="nav-lbl">Ethereum</span>
-    </button>
-    <button class="nav-item" data-cat="regulation" onclick="setTab('regulation',this)">
-      <span class="nav-ico">📋</span><span class="nav-lbl">Regulierung</span>
-    </button>
-    <button class="nav-item" data-cat="markets" onclick="setTab('markets',this)">
-      <span class="nav-ico">📊</span><span class="nav-lbl">Märkte</span>
-    </button>
-    <button class="nav-item" data-cat="tech" onclick="setTab('tech',this)">
-      <span class="nav-ico">🛠️</span><span class="nav-lbl">Tech</span>
-    </button>
-
-    <div id="sidebar-btc" style="margin-top:auto;">
-      <div class="sb-label">BITCOIN PREIS</div>
-      <div class="sb-price" id="sb-price">—</div>
-      <div class="sb-change" id="sb-change"></div>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">✅ Kostenlos & unabhängig</div>
+      <h1>Krypto-Börsen<br><em>Vergleich 2025</em></h1>
+      <p>Finde die beste Plattform für deinen Einstieg oder dein Trading — mit echten Gebühren, Bewertungen und Sicherheitsinfos.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-num">12+</div><div class="hs-lbl">Börsen verglichen</div></div>
+        <div class="hero-stat"><div class="hs-num">100%</div><div class="hs-lbl">Kostenlos</div></div>
+        <div class="hero-stat"><div class="hs-num">Täglich</div><div class="hs-lbl">Aktualisiert</div></div>
+      </div>
     </div>
   </div>
 
-  <!-- ── MAIN FEED ── -->
-  <div id="feed-col">
-    <div id="feed-top">
-      <div id="feed-title-row">
-        <div id="feed-title">Trending</div>
-        <button id="refresh-btn" onclick="refreshFeed()">↻ Aktualisieren</button>
-      </div>
+  <div class="page-inner">
 
-      <div id="search-wrap">
-        <span id="search-ico">🔍</span>
-        <input id="search-inp" type="text" placeholder="Bitcoin News durchsuchen..." oninput="onSearch(this.value)"/>
-      </div>
+    <!-- Market Bar -->
+    <div class="market-bar" id="market-bar">
+      <div class="mtoken"><div class="mt-name">Bitcoin BTC</div><div class="mt-price" id="m-btc">—</div><div class="mt-chg" id="m-btc-c">—</div></div>
+      <div class="mtoken"><div class="mt-name">Ethereum ETH</div><div class="mt-price" id="m-eth">—</div><div class="mt-chg" id="m-eth-c">—</div></div>
+      <div class="mtoken"><div class="mt-name">BNB</div><div class="mt-price" id="m-bnb">—</div><div class="mt-chg" id="m-bnb-c">—</div></div>
+      <div class="mtoken"><div class="mt-name">Solana SOL</div><div class="mt-price" id="m-sol">—</div><div class="mt-chg" id="m-sol-c">—</div></div>
+      <div class="mtoken"><div class="mt-name">XRP</div><div class="mt-price" id="m-xrp">—</div><div class="mt-chg" id="m-xrp-c">—</div></div>
+    </div>
 
-      <div id="cat-tabs">
-        <div class="tab on" data-cat="top" onclick="setTab('top',null,this)">🔥 Top</div>
-        <div class="tab" data-cat="bitcoin" onclick="setTab('bitcoin',null,this)">₿ Bitcoin</div>
-        <div class="tab" data-cat="lightning" onclick="setTab('lightning',null,this)">⚡ Lightning</div>
-        <div class="tab" data-cat="ethereum" onclick="setTab('ethereum',null,this)">Ξ Ethereum</div>
-        <div class="tab" data-cat="regulation" onclick="setTab('regulation',null,this)">📋 Regulierung</div>
-        <div class="tab" data-cat="markets" onclick="setTab('markets',null,this)">📊 Märkte</div>
-        <div class="tab" data-cat="tech" onclick="setTab('tech',null,this)">🛠️ Tech</div>
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <div class="filters">
+        <div class="ftag on" data-f="all"    onclick="setFilter('all',this)">Alle</div>
+        <div class="ftag" data-f="beginner"  onclick="setFilter('beginner',this)">👶 Anfänger</div>
+        <div class="ftag" data-f="bafin"     onclick="setFilter('bafin',this)">🇩🇪 BaFin reguliert</div>
+        <div class="ftag" data-f="sparplan"  onclick="setFilter('sparplan',this)">📅 Sparplan</div>
+        <div class="ftag" data-f="lowfee"    onclick="setFilter('lowfee',this)">💸 Niedrige Gebühren</div>
+        <div class="ftag" data-f="profi"     onclick="setFilter('profi',this)">🎯 Profi</div>
+      </div>
+      <div class="filter-sort">
+        <span class="sort-label">Sortieren:</span>
+        <select id="sort-sel" onchange="renderExchanges()">
+          <option value="rank">Empfehlung</option>
+          <option value="fee">Gebühren</option>
+          <option value="rating">Bewertung</option>
+          <option value="coins">Coins</option>
+        </select>
       </div>
     </div>
 
-    <div id="new-banner" onclick="dismissNewBanner()"></div>
-    <div id="feed"></div>
-    <div id="load-more-wrap">
-      <button id="load-more-btn" onclick="loadMore()">Mehr laden</button>
-    </div>
-    <div id="empty" style="display:none">
-      <div class="e-ico">🔍</div>
-      <div class="e-title">Keine Artikel gefunden</div>
-      <div>Versuch einen anderen Begriff</div>
-    </div>
-  </div>
-
-  <!-- ── RIGHT SIDEBAR ── -->
-  <div id="right-col">
-    <div class="widget">
-      <div class="w-title">₿ Bitcoin</div>
-      <div id="btc-price-big">—</div>
-      <div class="btc-change-row">
-        <span class="btc-chg" id="btc-chg-pct">—</span>
-        <span style="font-size:12px;color:var(--tx2)">24h</span>
-      </div>
-      <div class="btc-meta">
-        <div class="btc-meta-row"><span>Market Cap</span><span class="btc-meta-val" id="r-mktcap">—</span></div>
-        <div class="btc-meta-row"><span>Block Height</span><span class="btc-meta-val" id="r-block">—</span></div>
-        <div class="btc-meta-row"><span>Fear &amp; Greed</span><span class="btc-meta-val" id="r-fg">—</span></div>
-        <div class="btc-meta-row"><span>Halving in</span><span class="btc-meta-val" id="r-halving">—</span></div>
-      </div>
+    <div class="sec-hdr">
+      <div class="sec-title">Krypto-Börsen</div>
+      <div class="sec-count" id="ex-count"></div>
     </div>
 
-    <div class="widget" id="trending-widget">
-      <div class="w-title">📈 Trending Topics</div>
-      <div id="trending-list"></div>
-    </div>
+    <div id="exchange-list"></div>
 
-    <div class="widget">
-      <div class="w-title">📡 Quellen</div>
-      <div class="source-row" onclick="setTab('top')">
-        <div class="source-dot" style="background:#f7931a"></div>
-        <span>Hacker News</span>
-      </div>
-      <div class="source-row" onclick="setTab('bitcoin')">
-        <div class="source-dot" style="background:#ff4500"></div>
-        <span>Reddit r/Bitcoin</span>
-      </div>
-      <div class="source-row" onclick="setTab('markets')">
-        <div class="source-dot" style="background:#0d6efd"></div>
-        <span>Reddit r/CryptoCurrency</span>
-      </div>
-    </div>
-
-    <div style="font-size:11px;color:var(--tx3);text-align:center;padding:4px 0;">
-      Auto-refresh in <span id="refresh-countdown">120</span>s
+    <!-- Trust bar -->
+    <div class="trust-bar">
+      <div class="trust-item">✅ Unabhängig bewertet</div>
+      <div class="trust-item">🔒 Keine versteckten Kosten</div>
+      <div class="trust-item">📊 Echte Gebühren</div>
+      <div class="trust-item">🔄 Täglich aktualisiert</div>
     </div>
   </div>
-
 </div>
 
-<!-- MOBILE NAV -->
-<nav id="mobile-nav">
-  <button class="mnav on" onclick="setTab('top')"><span class="mico">🔥</span>Top</button>
-  <button class="mnav" onclick="setTab('bitcoin')"><span class="mico">₿</span>Bitcoin</button>
-  <button class="mnav" onclick="setTab('lightning')"><span class="mico">⚡</span>Lightning</button>
-  <button class="mnav" onclick="setTab('markets')"><span class="mico">📊</span>Märkte</button>
-  <button class="mnav" onclick="setTab('tech')"><span class="mico">🛠️</span>Tech</button>
-</nav>
-
-<script>
-// ═════════════════════════════════════════
-// CONFIG
-// ═════════════════════════════════════════
-const CATS = {
-  top:        { q:'bitcoin crypto',          label:'Trending',    sort:'points' },
-  bitcoin:    { q:'bitcoin',                  label:'Bitcoin',     sort:'date' },
-  lightning:  { q:'lightning network bitcoin',label:'Lightning',   sort:'date' },
-  ethereum:   { q:'ethereum',                 label:'Ethereum',    sort:'date' },
-  regulation: { q:'bitcoin regulation crypto',label:'Regulierung', sort:'date' },
-  markets:    { q:'crypto market bitcoin price',label:'Märkte',    sort:'date' },
-  tech:       { q:'bitcoin blockchain protocol',label:'Tech',      sort:'date' },
-};
-
-const SOURCE_COLORS = {
-  'Hacker News': '#f7931a',
-  'Reddit':      '#ff4500',
-  'GitHub':      '#6e40c9',
-};
-
-const AVA_COLORS = ['#f7931a','#e83e8c','#6610f2','#20c997','#0d6efd','#dc3545','#198754','#fd7e14'];
-
-// ═════════════════════════════════════════
-// STATE
-// ═════════════════════════════════════════
-let currentCat = 'top';
-let currentPage = 0;
-let allItems = [];
-let liked = new Set(JSON.parse(localStorage.getItem('sn_liked')||'[]'));
-let bookmarked = new Set(JSON.parse(localStorage.getItem('sn_bkm')||'[]'));
-let seenIds = new Set();
-let newItems = [];
-let searchQ = '';
-let searchTimer = null;
-let refreshTimer = null;
-let countdownVal = 120;
-
-// ═════════════════════════════════════════
-// UTILS
-// ═════════════════════════════════════════
-function timeAgo(dateStr) {
-  const d = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (d < 60)    return 'gerade';
-  if (d < 3600)  return Math.floor(d/60)+'m';
-  if (d < 86400) return Math.floor(d/3600)+'h';
-  return Math.floor(d/86400)+'d';
-}
-
-function fmtNum(n) {
-  if (!n) return '0';
-  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1)+'k';
-  return String(n);
-}
-
-function fmtPrice(n) {
-  return '$' + Math.round(n).toLocaleString('en-US');
-}
-
-function getDomain(url) {
-  if (!url) return 'news.ycombinator.com';
-  try { return new URL(url).hostname.replace(/^www\./,''); }
-  catch(e) { return url; }
-}
-
-function avatarColor(str) {
-  if (!str) return AVA_COLORS[0];
-  let h = 0;
-  for (let i=0;i<str.length;i++) h = (h<<5)-h+str.charCodeAt(i);
-  return AVA_COLORS[Math.abs(h) % AVA_COLORS.length];
-}
-
-function avatarInitial(str) {
-  if (!str) return '?';
-  return str.charAt(0).toUpperCase();
-}
-
-function stripHtml(s) {
-  return (s||'').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#x27;/g,"'").trim();
-}
-
-// ═════════════════════════════════════════
-// FETCH
-// ═════════════════════════════════════════
-async function fetchHN(query, page=0, sort='date') {
-  const endpoint = sort === 'points' ? 'search' : 'search_by_date';
-  const url = `https://hn.algolia.com/api/v1/${endpoint}?query=${encodeURIComponent(query)}&tags=story&hitsPerPage=25&page=${page}`;
-  const r = await fetch(url);
-  const d = await r.json();
-  return (d.hits||[]).map(h => ({
-    id: 'hn_'+h.objectID,
-    source: 'Hacker News',
-    author: h.author||'hn',
-    handle: '@hn/'+h.author,
-    title: h.title||'',
-    url: h.url||`https://news.ycombinator.com/item?id=${h.objectID}`,
-    domain: getDomain(h.url),
-    points: h.points||0,
-    comments: h.num_comments||0,
-    date: h.created_at,
-    link: `https://news.ycombinator.com/item?id=${h.objectID}`,
-  })).filter(x => x.title);
-}
-
-async function fetchReddit(subreddit, sort='hot', limit=20) {
-  try {
-    const url = `https://www.reddit.com/r/${subreddit}/${sort}.json?limit=${limit}&raw_json=1`;
-    const r = await fetch(url, {headers:{'Accept':'application/json'}});
-    const d = await r.json();
-    return (d.data?.children||[]).map(c => {
-      const p = c.data;
-      return {
-        id: 'rd_'+p.id,
-        source: 'Reddit',
-        author: 'r/'+subreddit,
-        handle: 'u/'+p.author,
-        title: stripHtml(p.title),
-        url: p.url||`https://reddit.com${p.permalink}`,
-        domain: getDomain(p.url),
-        points: p.score||0,
-        comments: p.num_comments||0,
-        date: new Date(p.created_utc*1000).toISOString(),
-        link: 'https://reddit.com'+p.permalink,
-        text: p.selftext ? stripHtml(p.selftext).slice(0,200) : '',
-      };
-    }).filter(x => x.title && !x.title.startsWith('[removed]'));
-  } catch(e) { return []; }
-}
-
-async function loadFeed(cat, page=0) {
-  const cfg = CATS[cat]||CATS.top;
-  let items = [];
-
-  if (cat === 'top') {
-    const [hn, rd1, rd2] = await Promise.all([
-      fetchHN('bitcoin OR crypto', page, 'points'),
-      page===0 ? fetchReddit('Bitcoin','hot',15) : [],
-      page===0 ? fetchReddit('CryptoCurrency','hot',10) : [],
-    ]);
-    items = [...hn, ...rd1, ...rd2];
-    // sort by points descending
-    items.sort((a,b) => b.points - a.points);
-  } else if (cat === 'markets') {
-    const [hn, rd] = await Promise.all([
-      fetchHN(cfg.q, page, cfg.sort),
-      page===0 ? fetchReddit('CryptoCurrency','hot',15) : [],
-    ]);
-    items = [...hn, ...rd];
-  } else {
-    const subreddit = cat === 'bitcoin' ? 'Bitcoin' : cat === 'ethereum' ? 'ethereum' : 'CryptoCurrency';
-    const [hn, rd] = await Promise.all([
-      fetchHN(cfg.q, page, cfg.sort),
-      page===0 ? fetchReddit(subreddit,'new',12) : [],
-    ]);
-    items = [...hn, ...rd];
-  }
-
-  return items.filter(x => x.title && x.title.length > 10);
-}
-
-// ═════════════════════════════════════════
-// RENDER
-// ═════════════════════════════════════════
-function renderCard(item) {
-  const isLiked = liked.has(item.id);
-  const isBkm   = bookmarked.has(item.id);
-  const srcColor = SOURCE_COLORS[item.source] || '#888';
-
-  const card = document.createElement('a');
-  card.className = 'card';
-  card.href = item.link || item.url;
-  card.target = '_blank';
-  card.rel = 'noopener';
-  card.dataset.id = item.id;
-
-  card.innerHTML = `
-    <div class="card-ava" style="background:${avatarColor(item.author)}">${avatarInitial(item.author)}</div>
-    <div class="card-body">
-      <div class="card-meta">
-        <span class="card-source">${item.author}</span>
-        <span class="card-handle">${item.handle}</span>
-        <span class="card-dot">·</span>
-        <span class="card-time">${timeAgo(item.date)}</span>
-        <span class="card-badge" style="background:${srcColor}18;color:${srcColor};border-color:${srcColor}33">${item.source}</span>
-      </div>
-      <div class="card-title">${item.title}</div>
-      ${item.text ? `<div style="font-size:13px;color:var(--tx2);margin-bottom:8px;line-height:1.5">${item.text}</div>` : ''}
-      <div class="card-url">🔗 ${item.domain}</div>
-      <div class="card-actions" onclick="event.preventDefault()">
-        <button class="act ${isLiked?'liked':''}" onclick="toggleLike('${item.id}',this)">
-          <span class="act-ico">${isLiked?'🧡':'🤍'}</span> ${fmtNum(item.points+(isLiked?1:0))}
-        </button>
-        <button class="act" onclick="openComments('${item.link||item.url}')">
-          <span class="act-ico">💬</span> ${fmtNum(item.comments)}
-        </button>
-        <button class="act act-share" onclick="shareItem('${item.url}','${(item.title||'').replace(/'/g,"\\'")}')">
-          <span class="act-ico">↗</span>
-        </button>
-        <button class="act ${isBkm?'bookmarked':''}" onclick="toggleBookmark('${item.id}',this)">
-          <span class="act-ico">${isBkm?'🔖':'📌'}</span>
-        </button>
+<!-- ═══ WALLETS PAGE ═══ -->
+<div class="page" id="page-wallets">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">🔒 Sicher & offline</div>
+      <h1>Hardware Wallet<br><em>Vergleich 2025</em></h1>
+      <p>Die besten Hardware Wallets für maximale Sicherheit deiner Krypto-Assets — offline, dein Schlüssel, dein Bitcoin.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-num">6</div><div class="hs-lbl">Wallets getestet</div></div>
+        <div class="hero-stat"><div class="hs-num">100%</div><div class="hs-lbl">Cold Storage</div></div>
       </div>
     </div>
-  `;
-  return card;
-}
+  </div>
+  <div class="page-inner">
+    <div class="sec-hdr" style="margin-bottom:20px">
+      <div class="sec-title">Hardware Wallets</div>
+    </div>
+    <div id="wallet-list"></div>
+  </div>
+</div>
 
-function renderSkeletons(n=6) {
-  const feed = document.getElementById('feed');
-  feed.innerHTML = '';
-  for (let i=0;i<n;i++) {
-    feed.innerHTML += `
-      <div class="skel">
-        <div class="skel-ava"></div>
-        <div class="skel-body">
-          <div class="skel-line" style="width:${40+Math.random()*30}%"></div>
-          <div class="skel-line" style="width:${60+Math.random()*35}%;height:16px;margin-top:4px"></div>
-          <div class="skel-line" style="width:${40+Math.random()*30}%;height:10px;margin-top:4px"></div>
-        </div>
-      </div>`;
-  }
-}
+<!-- ═══ RATGEBER PAGE ═══ -->
+<div class="page" id="page-ratgeber">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">📚 Kostenloser Ratgeber</div>
+      <h1>Krypto<br><em>Ratgeber</em></h1>
+      <p>Alles was du als Einsteiger oder Fortgeschrittener wissen musst — von Bitcoin kaufen bis zur Steuererklärung.</p>
+    </div>
+  </div>
+  <div class="page-inner">
+    <div class="guide-grid">
+      <div class="gcard"><div class="gc-ico">₿</div><div class="gc-title">Bitcoin kaufen — Schritt für Schritt</div><div class="gc-desc">So kaufst du deinen ersten Bitcoin sicher und günstig über eine regulierte Börse.</div><div class="gc-link">Zum Guide →</div></div>
+      <div class="gcard"><div class="gc-ico">📅</div><div class="gc-title">Bitcoin Sparplan einrichten</div><div class="gc-desc">Automatisch monatlich Bitcoin kaufen — DCA Strategie einfach erklärt mit Kostenvergleich.</div><div class="gc-link">Zum Guide →</div></div>
+      <div class="gcard"><div class="gc-ico">🔒</div><div class="gc-title">Bitcoin sicher aufbewahren</div><div class="gc-desc">Hardware Wallet vs. Exchange — wann du deine eigene Wallet brauchst und welche die beste ist.</div><div class="gc-link">Zum Guide →</div></div>
+      <div class="gcard"><div class="gc-ico">💸</div><div class="gc-title">Krypto Gebühren verstehen</div><div class="gc-desc">Maker/Taker, Spread, Network Fee — alle Gebühren einfach erklärt und wie du sie minimierst.</div><div class="gc-link">Zum Guide →</div></div>
+      <div class="gcard"><div class="gc-ico">🇩🇪</div><div class="gc-title">Krypto Steuern in Deutschland</div><div class="gc-desc">Was musst du versteuern? Haltefrist, Freigrenze, Verlustverrechnung — der komplette Überblick.</div><div class="gc-link">Zum Guide →</div></div>
+      <div class="gcard"><div class="gc-ico">💰</div><div class="gc-title">Krypto Staking erklärt</div><div class="gc-desc">Mit Bitcoin und Ethereum passives Einkommen erzielen — Renditen, Risiken und beste Plattformen.</div><div class="gc-link">Zum Guide →</div></div>
+    </div>
+  </div>
+</div>
 
-function renderFeed(items, append=false) {
-  const feed = document.getElementById('feed');
-  const empty = document.getElementById('empty');
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <p class="footer-disclaimer">⚠️ Risikohinweis: Kryptowährungen sind hochspekulative Investments. Der Wert kann stark schwanken und zu 100% verloren gehen. Dieser Vergleich stellt keine Anlageberatung dar. Affiliate-Links: Wir erhalten eine Provision bei Anmeldungen über unsere Links — für dich entstehen keine Mehrkosten.</p>
+    <div class="footer-links">
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">Affiliate-Hinweis</a>
+      <a href="#">Methodik</a>
+    </div>
+  </div>
+</footer>
 
-  if (!append) {
-    feed.innerHTML = '';
-    seenIds = new Set();
-  }
+<script>
+// ══════════════════════════════════════════════
+// DATA — REPLACE affiliateUrl WITH YOUR LINKS!
+// ══════════════════════════════════════════════
+const EXCHANGES = [
+  {
+    id:'binance', name:'Binance', icon:'🟡', rank:1,
+    rating:4.7, ratingStr:'4.7',
+    tagline:'Weltgrößte Krypto-Börse — niedrigste Gebühren, größte Auswahl',
+    makerFee:'0.10%', takerFee:'0.10%', spreadFee:null,
+    coins:500, minDeposit:'€10',
+    bafin:false, eu:false, beginner:false, sparplan:false, profi:true, lowfee:true,
+    tags:['500+ Coins','Futures','NFTs','Copy Trading'],
+    pros:['Niedrigste Gebühren auf dem Markt','Größte Liquidität weltweit','Riesige Coin-Auswahl'],
+    cons:['Nicht BaFin-reguliert','Komplex für Anfänger','Kein DE-Kundendienst'],
+    offer:'💥 20% Gebührenrabatt + Willkommensbonus',
+    topPick:true,
+    badge:null,
+    affiliateUrl:'https://www.binance.com/register?ref=DEINLINK', // ← DEIN AFFILIATE LINK
+  },
+  {
+    id:'bitpanda', name:'Bitpanda', icon:'🔵', rank:2,
+    rating:4.4, ratingStr:'4.4',
+    tagline:'Die beliebteste Plattform im DACH-Raum — einfach & reguliert',
+    makerFee:'ab 0.10%', takerFee:'ab 0.15%', spreadFee:'1.49%',
+    coins:400, minDeposit:'€25',
+    bafin:true, eu:true, beginner:true, sparplan:true, profi:false, lowfee:false,
+    tags:['BaFin-reguliert','Sparplan','SEPA-Überweisung','Deutsche Steuer'],
+    pros:['BaFin & BaFi reguliert','Sparplan ab €1/Woche','Sehr einfache Bedienung','DSGVO-konform'],
+    cons:['Spread von 1.49% (relativ hoch)','Weniger Profi-Features','Keine Futures'],
+    offer:'🎁 €10 Startguthaben bei erster Einzahlung',
+    topPick:false,
+    badge:'beginner',
+    affiliateUrl:'https://www.bitpanda.com/?ref=DEINLINK', // ← DEIN AFFILIATE LINK
+  },
+  {
+    id:'coinbase', name:'Coinbase', icon:'🔷', rank:3,
+    rating:4.2, ratingStr:'4.2',
+    tagline:'Die sicherste & bekannteste Börse weltweit — börsennotiert',
+    makerFee:'0.40%', takerFee:'0.60%', spreadFee:'~0.5%',
+    coins:250, minDeposit:'€2',
+    bafin:false, eu:true, beginner:true, sparplan:true, profi:false, lowfee:false,
+    tags:['EU MiCA-reguliert','Börsennotiert (NASDAQ)','Staking','NFTs'],
+    pros:['Extrem sicher (NASDAQ-notiert)','Sehr einfach für Einsteiger','Guter Kundendienst'],
+    cons:['Vergleichsweise hohe Gebühren','Weniger Coins','Advanced UI nötig für gute Preise'],
+    offer:'',
+    topPick:false,
+    badge:'eu',
+    affiliateUrl:'https://www.coinbase.com/join/DEINLINK',
+  },
+  {
+    id:'kraken', name:'Kraken', icon:'🐙', rank:4,
+    rating:4.5, ratingStr:'4.5',
+    tagline:'Profi-Börse mit europäischer Regulierung seit 2011',
+    makerFee:'0.16%', takerFee:'0.26%', spreadFee:null,
+    coins:220, minDeposit:'€1',
+    bafin:false, eu:true, beginner:false, sparplan:false, profi:true, lowfee:true,
+    tags:['EU-reguliert','Futures','Staking','Seit 2011'],
+    pros:['Sehr günstig für Profis (0.16%)','Stark reguliert & vertrauenswürdig','Guter Kundendienst'],
+    cons:['Interface für Anfänger unübersichtlich','Kein Sparplan','Langsame Verifizierung'],
+    offer:'',
+    topPick:false,
+    badge:'eu',
+    affiliateUrl:'https://www.kraken.com/sign-up?referral=DEINLINK',
+  },
+  {
+    id:'bison', name:'BISON',  icon:'🦬', rank:5,
+    rating:4.1, ratingStr:'4.1',
+    tagline:'Deutsche App von der Börse Stuttgart — 0% Ordergebühr',
+    makerFee:'0%', takerFee:'0%', spreadFee:'~1.5%',
+    coins:16, minDeposit:'€1',
+    bafin:true, eu:true, beginner:true, sparplan:true, profi:false, lowfee:false,
+    tags:['BaFin-reguliert','Sparplan','Made in Germany','0% Ordergebühr'],
+    pros:['BaFin reguliert (Börse Stuttgart)','0 Ordergebühr (Spread inklusive)','Deutsche App, sehr einfach'],
+    cons:['Nur 16 Coins verfügbar','Spread ca. 1.5%','Keine Profi-Features'],
+    offer:'✅ Keine Ordergebühren',
+    topPick:false,
+    badge:'bafin',
+    affiliateUrl:'https://bisonapp.com/ref/DEINLINK',
+  },
+  {
+    id:'traderepublic', name:'Trade Republic', icon:'🟢', rank:6,
+    rating:4.0, ratingStr:'4.0',
+    tagline:'Deutschlands größter Broker — Krypto ab €1 Flatfee',
+    makerFee:'€1 flat', takerFee:'€1 flat', spreadFee:'~0.99%',
+    coins:52, minDeposit:'€10',
+    bafin:true, eu:true, beginner:true, sparplan:true, profi:false, lowfee:false,
+    tags:['BaFin-reguliert','Sparplan','Aktien + Krypto','2% Zinsen auf Cash'],
+    pros:['BaFin & Einlagensicherung','Sparplan + Aktien auf einer App','2% Zinsen auf nicht investiertes Geld'],
+    cons:['Nur 52 Kryptowährungen','1€ + ~0.99% Spread pro Trade','Keine Profi-Charts'],
+    offer:'💰 2% Zinsen p.a. auf Cash-Einlagen',
+    topPick:false,
+    badge:'bafin',
+    affiliateUrl:'https://traderepublic.com/?ref=DEINLINK',
+  },
+  {
+    id:'bybit', name:'Bybit', icon:'🔴', rank:7,
+    rating:4.3, ratingStr:'4.3',
+    tagline:'Profi-Börse für Derivatives & Spot-Trading weltweit',
+    makerFee:'0.10%', takerFee:'0.10%', spreadFee:null,
+    coins:500, minDeposit:'€1',
+    bafin:false, eu:false, beginner:false, sparplan:false, profi:true, lowfee:true,
+    tags:['Futures','500+ Coins','Copy Trading','Demo-Modus'],
+    pros:['Sehr niedrige Gebühren','Hervorragende Futures-Platform','Demo-Konto zum Üben'],
+    cons:['Nicht EU-reguliert','Für Anfänger zu komplex','Eingeschränkt in manchen Ländern'],
+    offer:'🎯 $30.000 Demo-Kapital zum Üben',
+    topPick:false,
+    badge:null,
+    affiliateUrl:'https://www.bybit.com/invite?ref=DEINLINK',
+  },
+];
 
-  const filtered = items.filter(x => {
-    if (seenIds.has(x.id)) return false;
-    if (searchQ && !x.title.toLowerCase().includes(searchQ.toLowerCase())) return false;
-    seenIds.add(x.id);
-    return true;
-  });
+const WALLETS = [
+  {
+    id:'ledger-x', name:'Ledger Nano X', icon:'🔵', price:'€149',
+    tagline:'Bestes Bluetooth-Wallet — über 5.500 Coins, mobile App',
+    topPick:true,
+    specs:[
+      {l:'Preis',v:'€149'},
+      {l:'Bluetooth',v:'✅ Ja'},
+      {l:'Coins',v:'5.500+'},
+      {l:'Display',v:'OLED'},
+      {l:'Open Source',v:'Teilweise'},
+      {l:'Zertifiziert',v:'CC EAL5+'},
+    ],
+    pros:['Bluetooth für mobile Nutzung','Riesige Coin-Auswahl','Sehr verbreitet & getestet'],
+    badge:'Testsieger',
+    affiliateUrl:'https://shop.ledger.com/?r=DEINLINK',
+  },
+  {
+    id:'ledger-s', name:'Ledger Nano S Plus', icon:'🟦', price:'€79',
+    tagline:'Günstigstes Einstiegs-Wallet mit voller Sicherheit',
+    topPick:false,
+    specs:[
+      {l:'Preis',v:'€79'},
+      {l:'Bluetooth',v:'❌ Nein'},
+      {l:'Coins',v:'5.500+'},
+      {l:'Display',v:'OLED'},
+      {l:'Open Source',v:'Teilweise'},
+      {l:'Zertifiziert',v:'CC EAL5+'},
+    ],
+    pros:['Günstigster Einstieg','Gleiche Sicherheit wie Nano X','USB-C Anschluss'],
+    badge:'Preis-Leistung',
+    affiliateUrl:'https://shop.ledger.com/products/ledger-nano-s-plus?r=DEINLINK',
+  },
+  {
+    id:'trezor-t', name:'Trezor Model T', icon:'🟠', price:'€169',
+    tagline:'Vollständig Open Source — Touchscreen, maximale Transparenz',
+    topPick:false,
+    specs:[
+      {l:'Preis',v:'€169'},
+      {l:'Bluetooth',v:'❌ Nein'},
+      {l:'Coins',v:'1.800+'},
+      {l:'Display',v:'Touchscreen'},
+      {l:'Open Source',v:'✅ 100%'},
+      {l:'Zertifiziert',v:'–'},
+    ],
+    pros:['100% Open Source Code','Touchscreen sehr einfach','Keine proprietären Chips'],
+    badge:null,
+    affiliateUrl:'https://trezor.io/trezor-model-t?ref=DEINLINK',
+  },
+  {
+    id:'trezor-safe', name:'Trezor Safe 3', icon:'🟫', price:'€79',
+    tagline:'Günstig, Open Source, sicher — perfekter Einstieg',
+    topPick:false,
+    specs:[
+      {l:'Preis',v:'€79'},
+      {l:'Bluetooth',v:'❌ Nein'},
+      {l:'Coins',v:'1.800+'},
+      {l:'Display',v:'Monochrom'},
+      {l:'Open Source',v:'✅ 100%'},
+      {l:'Zertifiziert',v:'EAL6+'},
+    ],
+    pros:['Günstigster Einstieg bei Trezor','Open Source & EAL6+ Chip','Kompaktes Design'],
+    badge:null,
+    affiliateUrl:'https://trezor.io/trezor-safe-3?ref=DEINLINK',
+  },
+];
 
-  if (filtered.length === 0 && !append) {
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let activeFilter = 'all';
 
-  filtered.forEach(item => feed.appendChild(renderCard(item)));
-  computeTrending(allItems);
-}
-
-// ═════════════════════════════════════════
-// TRENDING TOPICS
-// ═════════════════════════════════════════
-const STOP = new Set(['the','a','an','and','or','of','to','in','is','it','for','on','as','at','by','be','was','are','has','that','this','with','bitcoin','crypto','cryptocurrency','blockchain','from','have','not','but','will','they','been','new']);
-
-function computeTrending(items) {
-  const counts = {};
-  items.forEach(item => {
-    const words = (item.title||'').toLowerCase().match(/\b[a-z]{4,}\b/g)||[];
-    words.forEach(w => {
-      if (!STOP.has(w)) counts[w] = (counts[w]||0) + 1;
-    });
-  });
-  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const list = document.getElementById('trending-list');
-  if (!list) return;
-  list.innerHTML = '';
-  top.forEach(([word, count], i) => {
-    list.innerHTML += `
-      <div class="trend-item" onclick="doSearch('${word}')">
-        <div class="trend-num">${i+1} · Trending</div>
-        <div class="trend-word">#${word}</div>
-        <div class="trend-count">${count} Artikel</div>
-      </div>`;
-  });
-}
-
-// ═════════════════════════════════════════
-// INTERACTIONS
-// ═════════════════════════════════════════
-function toggleLike(id, btn) {
-  if (liked.has(id)) { liked.delete(id); btn.classList.remove('liked'); btn.innerHTML = '<span class="act-ico">🤍</span> '+btn.textContent.trim().replace(/\S+$/,''); }
-  else               { liked.add(id);    btn.classList.add('liked');    btn.innerHTML = '<span class="act-ico">🧡</span> '+btn.textContent.trim().replace(/\S+$/,''); }
-  localStorage.setItem('sn_liked', JSON.stringify([...liked]));
-}
-
-function toggleBookmark(id, btn) {
-  if (bookmarked.has(id)) { bookmarked.delete(id); btn.classList.remove('bookmarked'); btn.querySelector('.act-ico').textContent='📌'; }
-  else                    { bookmarked.add(id);    btn.classList.add('bookmarked');    btn.querySelector('.act-ico').textContent='🔖'; }
-  localStorage.setItem('sn_bkm', JSON.stringify([...bookmarked]));
-}
-
-function openComments(url) { window.open(url,'_blank','noopener'); }
-
-function shareItem(url, title) {
-  if (navigator.share) {
-    navigator.share({ title, url }).catch(()=>{});
-  } else {
-    navigator.clipboard?.writeText(url);
-    alert('Link kopiert!');
-  }
-}
-
-// ═════════════════════════════════════════
+// ══════════════════════════════════════════════
 // NAVIGATION
-// ═════════════════════════════════════════
-async function setTab(cat, sidebarBtn=null, tabEl=null) {
-  currentCat = cat;
-  currentPage = 0;
-  searchQ = '';
-  document.getElementById('search-inp').value = '';
-  document.getElementById('new-banner').classList.remove('show');
+// ══════════════════════════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('page-'+page).classList.add('on');
+  document.querySelector(`.nav-btn[onclick*="${page}"]`).classList.add('on');
+  window.scrollTo({top:0});
+}
 
-  // Update sidebar active
-  document.querySelectorAll('#sidebar .nav-item').forEach(b => b.classList.remove('active'));
-  if (sidebarBtn) sidebarBtn.classList.add('active');
-  else {
-    const sb = document.querySelector(`#sidebar [data-cat="${cat}"]`);
-    if (sb) sb.classList.add('active');
-  }
+// ══════════════════════════════════════════════
+// FILTER & SORT
+// ══════════════════════════════════════════════
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.ftag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderExchanges();
+}
 
-  // Update tabs
-  document.querySelectorAll('#cat-tabs .tab').forEach(t => t.classList.remove('on'));
-  if (tabEl) tabEl.classList.add('on');
-  else {
-    const tb = document.querySelector(`#cat-tabs [data-cat="${cat}"]`);
-    if (tb) tb.classList.add('on');
-  }
+function getFiltered() {
+  let list = [...EXCHANGES];
+  if (activeFilter === 'beginner')  list = list.filter(e => e.beginner);
+  if (activeFilter === 'bafin')     list = list.filter(e => e.bafin);
+  if (activeFilter === 'sparplan')  list = list.filter(e => e.sparplan);
+  if (activeFilter === 'lowfee')    list = list.filter(e => e.lowfee);
+  if (activeFilter === 'profi')     list = list.filter(e => e.profi);
 
-  // Mobile nav
-  document.querySelectorAll('.mnav').forEach(m => m.classList.remove('on'));
+  const sort = document.getElementById('sort-sel')?.value || 'rank';
+  if (sort === 'fee')    list.sort((a,b) => parseFloat(a.makerFee) - parseFloat(b.makerFee));
+  if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+  if (sort === 'coins')  list.sort((a,b) => b.coins - a.coins);
+  if (sort === 'rank')   list.sort((a,b) => a.rank - b.rank);
 
-  // Title
-  document.getElementById('feed-title').textContent = CATS[cat]?.label || cat;
+  return list;
+}
 
-  renderSkeletons();
-  allItems = [];
+// ══════════════════════════════════════════════
+// RENDER EXCHANGES
+// ══════════════════════════════════════════════
+function stars(r) {
+  const full = Math.floor(r);
+  const half = r - full >= 0.3 ? 1 : 0;
+  return '★'.repeat(full) + (half?'½':'') + '☆'.repeat(5-full-half);
+}
+
+function renderExchanges() {
+  const list = getFiltered();
+  const el = document.getElementById('exchange-list');
+  const cnt = document.getElementById('ex-count');
+  cnt.textContent = list.length + ' Börsen';
+
+  el.innerHTML = '';
+  list.forEach((ex, i) => {
+    const card = document.createElement('div');
+    card.className = 'ex-card' + (ex.topPick?' top-pick':'');
+
+    const badgeHtml = ex.bafin
+      ? '<span class="badge badge-bafin">🇩🇪 BaFin</span>'
+      : ex.eu ? '<span class="badge badge-eu">🇪🇺 EU-reguliert</span>' : '';
+
+    card.innerHTML = `
+      ${ex.topPick ? `<div class="ex-top-badge">🏆 Testsieger & Empfehlung</div>` : ''}
+      <div class="ex-body">
+        <div class="ex-logo">${ex.icon}</div>
+        <div class="ex-main">
+          <div class="ex-name-row">
+            <span class="ex-name">${ex.name}</span>
+            <div class="ex-rating"><span class="stars">${stars(ex.rating)}</span><span class="rating-num">${ex.ratingStr}</span></div>
+            ${badgeHtml}
+          </div>
+          <div class="ex-tagline">${ex.tagline}</div>
+          <div class="ex-stats">
+            <div class="ex-stat"><div class="es-val">${ex.makerFee}</div><div class="es-lbl">Maker Fee</div></div>
+            <div class="ex-stat"><div class="es-val">${ex.takerFee}</div><div class="es-lbl">Taker Fee</div></div>
+            <div class="ex-stat"><div class="es-val">${ex.coins}+</div><div class="es-lbl">Coins</div></div>
+            <div class="ex-stat"><div class="es-val">${ex.minDeposit}</div><div class="es-lbl">Min. Einzahlung</div></div>
+          </div>
+          <div class="ex-tags">
+            ${ex.tags.map(t=>`<span class="ex-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+        <div class="ex-right">
+          ${ex.offer ? `<div class="ex-offer">${ex.offer}</div>` : ''}
+          <a class="btn-open" href="${ex.affiliateUrl}" target="_blank" rel="noopener sponsored">
+            Jetzt zu ${ex.name} →
+          </a>
+          <button class="btn-open-ghost" onclick="this.closest('.ex-card').querySelector('.ex-pc').classList.toggle('hidden')">
+            Mehr anzeigen
+          </button>
+        </div>
+      </div>
+      <div class="ex-pc">
+        <div class="pc-col">
+          <div class="pc-title">✅ Vorteile</div>
+          ${ex.pros.map(p=>`<div class="pc-item"><span class="pc-dot pro">●</span>${p}</div>`).join('')}
+        </div>
+        <div class="pc-col">
+          <div class="pc-title">❌ Nachteile</div>
+          ${ex.cons.map(c=>`<div class="pc-item"><span class="pc-dot con">●</span>${c}</div>`).join('')}
+        </div>
+      </div>
+    `;
+    el.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+// RENDER WALLETS
+// ══════════════════════════════════════════════
+function renderWallets() {
+  const el = document.getElementById('wallet-list');
+  el.innerHTML = '';
+  WALLETS.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'wcard' + (w.topPick?' top-pick':'');
+    card.innerHTML = `
+      ${w.badge?`<div style="margin-bottom:8px"><span class="badge badge-bafin">${w.topPick?'🏆 ':''} ${w.badge}</span></div>`:''}
+      <div class="wcard-icon">${w.icon}</div>
+      <div class="wcard-name">${w.name}</div>
+      <div class="wcard-price">${w.price}</div>
+      <div class="wcard-tagline">${w.tagline}</div>
+      <div class="wcard-specs">
+        ${w.specs.map(s=>`<div class="wspec"><span class="wspec-lbl">${s.l}</span><span class="wspec-val">${s.v}</span></div>`).join('')}
+      </div>
+      <a class="btn-wallet" href="${w.affiliateUrl}" target="_blank" rel="noopener sponsored">
+        Jetzt kaufen →
+      </a>
+    `;
+    el.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+// MARKET PRICES
+// ══════════════════════════════════════════════
+function fmtUSD(n) {
+  if (n >= 1000) return '$'+Math.round(n).toLocaleString('en-US');
+  return '$'+n.toFixed(2);
+}
+function chgStr(c) {
+  const s = c >= 0 ? '+' : '';
+  return s + c.toFixed(2) + '%';
+}
+
+async function fetchPrices() {
   try {
-    allItems = await loadFeed(cat, 0);
-    renderFeed(allItems);
-    document.getElementById('load-more-btn').disabled = false;
-  } catch(e) {
-    document.getElementById('feed').innerHTML = `<div id="empty" style="display:block"><div class="e-ico">😕</div><div class="e-title">Fehler beim Laden</div><div>${e.message||'Bitte neu versuchen'}</div></div>`;
-  }
+    const ids = 'bitcoin,ethereum,binancecoin,solana,ripple';
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    const d = await r.json();
 
-  resetRefresh();
-}
-
-async function loadMore() {
-  currentPage++;
-  const btn = document.getElementById('load-more-btn');
-  btn.disabled = true;
-  btn.textContent = 'Lädt…';
-  try {
-    const more = await loadFeed(currentCat, currentPage);
-    allItems = [...allItems, ...more];
-    renderFeed(more, true);
-    btn.textContent = 'Mehr laden';
-    btn.disabled = false;
-    if (more.length < 5) { btn.disabled = true; btn.textContent = 'Keine weiteren'; }
-  } catch(e) {
-    btn.textContent = 'Mehr laden';
-    btn.disabled = false;
-  }
-}
-
-async function refreshFeed() {
-  const btn = document.getElementById('refresh-btn');
-  btn.textContent = '↻ Lädt…';
-  try {
-    const fresh = await loadFeed(currentCat, 0);
-    const newOnes = fresh.filter(x => !seenIds.has(x.id));
-    if (newOnes.length > 0) {
-      newItems = newOnes;
-      const banner = document.getElementById('new-banner');
-      banner.textContent = `↑ ${newOnes.length} neue Artikel – klicken zum Anzeigen`;
-      banner.classList.add('show');
-    }
-    allItems = fresh;
-  } catch(e) {}
-  btn.textContent = '↻ Aktualisieren';
-  resetRefresh();
-}
-
-function dismissNewBanner() {
-  document.getElementById('new-banner').classList.remove('show');
-  seenIds = new Set();
-  renderFeed(allItems);
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-// ═════════════════════════════════════════
-// SEARCH
-// ═════════════════════════════════════════
-function onSearch(val) {
-  searchQ = val.trim();
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => renderFeed(allItems), 300);
-}
-
-function doSearch(word) {
-  const inp = document.getElementById('search-inp');
-  inp.value = word;
-  searchQ = word;
-  renderFeed(allItems);
-  inp.scrollIntoView({behavior:'smooth',block:'center'});
-}
-
-// ═════════════════════════════════════════
-// BTC PRICE + STATS
-// ═════════════════════════════════════════
-async function fetchBTCData() {
-  try {
-    const [priceRes, blockRes, fgRes, cgRes] = await Promise.allSettled([
-      fetch('https://mempool.space/api/v1/prices'),
-      fetch('https://mempool.space/api/blocks/tip/height'),
-      fetch('https://api.alternative.me/fng/?limit=1'),
-      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true'),
-    ]);
-
-    let price = null, chg = null, mktcap = null;
-    if (cgRes.status==='fulfilled') {
-      const cg = await cgRes.value.json();
-      price = cg.bitcoin?.usd;
-      chg = cg.bitcoin?.usd_24h_change;
-      mktcap = cg.bitcoin?.usd_market_cap;
-    }
-    if (!price && priceRes.status==='fulfilled') {
-      const p = await priceRes.value.json();
-      price = p.USD;
-    }
-
-    if (price) {
-      const pStr = '$' + Math.round(price).toLocaleString('en-US');
-      const chgStr = chg != null ? (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%' : '';
-      const chgClass = chg != null ? (chg >= 0 ? 'up' : 'dn') : '';
-
-      document.getElementById('btc-price-big').textContent = pStr;
-      const chgEl = document.getElementById('btc-chg-pct');
-      chgEl.textContent = chgStr;
-      chgEl.className = 'btc-chg ' + chgClass;
-
-      document.getElementById('sb-price').textContent = pStr;
-      const sbChg = document.getElementById('sb-change');
-      sbChg.textContent = chgStr;
-      sbChg.className = 'sb-change ' + chgClass;
-
-      if (mktcap) {
-        const mc = mktcap >= 1e12 ? (mktcap/1e12).toFixed(2)+'T' : (mktcap/1e9).toFixed(0)+'B';
-        document.getElementById('r-mktcap').textContent = '$'+mc;
+    const coins = [
+      {id:'bitcoin',      elP:'m-btc',  elC:'m-btc-c'},
+      {id:'ethereum',     elP:'m-eth',  elC:'m-eth-c'},
+      {id:'binancecoin',  elP:'m-bnb',  elC:'m-bnb-c'},
+      {id:'solana',       elP:'m-sol',  elC:'m-sol-c'},
+      {id:'ripple',       elP:'m-xrp',  elC:'m-xrp-c'},
+    ];
+    coins.forEach(c => {
+      const info = d[c.id];
+      if (!info) return;
+      const p = document.getElementById(c.elP);
+      const ch = document.getElementById(c.elC);
+      if (p) p.textContent = fmtUSD(info.usd);
+      if (ch) {
+        const chg = info.usd_24h_change || 0;
+        ch.textContent = chgStr(chg);
+        ch.className = 'mt-chg ' + (chg >= 0 ? 'up':'dn');
       }
-    }
+    });
 
-    if (blockRes.status==='fulfilled') {
-      const h = await blockRes.value.text();
-      const height = parseInt(h);
-      document.getElementById('r-block').textContent = parseInt(h).toLocaleString('en-US');
-      // Halving every 210000 blocks, next at ~1,050,000
-      const nextHalving = Math.ceil(height/210000)*210000;
-      const blocksLeft = nextHalving - height;
-      const daysLeft = Math.round(blocksLeft * 10 / 1440);
-      document.getElementById('r-halving').textContent = daysLeft+'d';
-    }
-
-    if (fgRes.status==='fulfilled') {
-      const fg = await fgRes.value.json();
-      const v = fg.data?.[0];
-      if (v) document.getElementById('r-fg').textContent = v.value+' — '+v.value_classification;
+    // Header
+    const btcInfo = d.bitcoin;
+    if (btcInfo) {
+      document.getElementById('h-btc').textContent = fmtUSD(btcInfo.usd);
+      const hChg = document.getElementById('h-chg');
+      const chg = btcInfo.usd_24h_change || 0;
+      hChg.textContent = chgStr(chg);
+      hChg.className = 'lp-chg ' + (chg >= 0 ? 'up':'dn');
     }
   } catch(e) {}
 }
 
-// ═════════════════════════════════════════
-// AUTO-REFRESH COUNTDOWN
-// ═════════════════════════════════════════
-function resetRefresh() {
-  clearInterval(refreshTimer);
-  countdownVal = 120;
-  const el = document.getElementById('refresh-countdown');
-  if (el) el.textContent = countdownVal;
-  refreshTimer = setInterval(() => {
-    countdownVal--;
-    if (el) el.textContent = countdownVal;
-    if (countdownVal <= 0) refreshFeed();
-  }, 1000);
-}
-
-// ═════════════════════════════════════════
+// ══════════════════════════════════════════════
 // INIT
-// ═════════════════════════════════════════
-fetchBTCData();
-setInterval(fetchBTCData, 60000);
-setTab('top');
+// ══════════════════════════════════════════════
+renderExchanges();
+renderWallets();
+fetchPrices();
+setInterval(fetchPrices, 60000);
 </script>
 </body>
 </html>
