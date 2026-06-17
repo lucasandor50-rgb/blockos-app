@@ -255,11 +255,12 @@
       color: var(--text3); padding: 6px 0; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .month-day {
-      aspect-ratio: 1; background: var(--bg1); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); cursor: pointer; padding: 6px;
+      height: 80px; background: var(--bg1); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); cursor: pointer; padding: 8px;
       display: flex; flex-direction: column; align-items: flex-start;
       transition: all 0.15s; position: relative; overflow: hidden;
     }
+    @media (max-width: 600px) { .month-day { height: 52px; padding: 5px; } }
     .month-day:hover { border-color: var(--blue); }
     .month-day.today { border-color: var(--orange); background: rgba(247,147,26,0.04); }
     .month-day.other-month { opacity: 0.3; }
@@ -625,9 +626,9 @@ function switchView(id, btn) {
   document.getElementById('view-' + id).classList.add('active');
   document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  // also set mobile counterpart or desktop
   const mob = document.getElementById('mnav-' + id);
   if (mob) mob.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (id === 'journal') renderJournal();
   if (id === 'blocks') renderBlocks();
   if (id === 'newscal') renderMonthCal();
