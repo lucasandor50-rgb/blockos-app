@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Dark Background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="#09090b"/>
+  <!-- Decorative glowing orange circle/gradient in background -->
+  <circle cx="256" cy="256" r="180" fill="url(#orange-glow)" opacity="0.15"/>
+  <!-- Stylized Orange Bitcoin logo container -->
+  <circle cx="256" cy="256" r="130" fill="#f7931a"/>
+  <!-- White Bitcoin Symbol -->
+  <path d="M327.9 203.2c4.4-29.2-17.8-44.9-48.2-55.4l9.8-39.5-24-6-9.6 38.5c-6.3-1.6-12.8-3.1-19.3-4.5l9.7-38.9-24-6-9.8 39.4c-5.2-1.2-10.4-2.4-15.4-3.7l.1-.4-33.1-8.3-6.4 25.6s17.8 4.1 17.4 4.3c9.7 2.4 11.5 8.9 11.2 14.1l-11.2 45c.7.2 1.5.4 2.2.7-.8-.2-1.6-.4-2.4-.6l-15.7 63c-1.2 2.9-4.2 7.3-11 5.6.2.3-17.4-4.3-17.4-4.3l-11.9 27.5 31.3 7.8c5.8 1.5 11.5 3 17.1 4.4l-10 40.1 24 6 9.8-39.3c6.6 1.8 13 3.5 19.3 5.1l-9.8 39.2 24 6 9.9-39.6c41.3 7.8 72.3 4.7 85.4-32.7 10.5-30.1-.5-47.5-22.3-58.8 15.9-3.7 27.9-14.1 31.1-35.6zm-55.7 77.8c-7.5 30.1-58.2 13.8-74.6 9.8l13.3-53.4c16.4 4.1 69 12.2 61.3 43.6zm7.5-78.3c-6.8 27.4-49.1 13.5-62.8 10.1l12.1-48.5c13.7 3.4 57.7 9.8 50.7 38.4z" fill="#ffffff"/>
+  
+  <defs>
+    <radialGradient id="orange-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f7931a"/>
+      <stop offset="100%" stop-color="#f7931a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

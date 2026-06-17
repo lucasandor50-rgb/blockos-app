@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>₿ Bitcoin Block Slot Calendar • Personal OS</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f7931a">
+    
+    <!-- iOS PWA Setup -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="blockOS">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #f7931a;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .bitcoin-orange {
+            color: #f7931a;
+        }
+
+        .slot {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 88px;
+        }
+        
+        button, .slot {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .slot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        .slot.active {
+            border-color: #f7931a;
+            box-shadow: 0 0 0 3px rgba(247, 147, 26, 0.2);
+        }
+
+        .slot.has-note {
+            background-color: #fefce8;
+            border-color: #ca8a04;
+        }
+
+        .block-height {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-feature-settings: "tnum";
+        }
+
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .markdown-content ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+        }
+
+        .nav-active {
+            background-color: #fefce8;
+            color: #713f12;
+            font-weight: 600;
+        }
+
+        .section-header {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 768px) {
+            .mobile-sidebar { display: none !important; }
+            .mobile-bottom-nav { display: flex !important; }
+            .main-padding { padding: 1rem !important; }
+            .header-title { font-size: 2rem !important; }
+            .header-subtitle { font-size: 0.9rem !important; }
+            body { padding-bottom: 80px; }
+        }
+        .mobile-bottom-nav { display: none; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <!-- Top Navigation -->
+    <nav class="border-b border-zinc-800 bg-zinc-900">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="flex items-center justify-center w-10 h-10 bg-[#f7931a] rounded-2xl shadow-inner">
+                        <i class="fa-brands fa-bitcoin text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-display text-2xl font-semibold tracking-tighter">blockOS</span>
+                        <span class="ml-1.5 text-xs px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-full align-super">v5</span>
+                    </div>
+                    <div class="ml-4 px-3 py-1 bg-zinc-900 border border-zinc-700 rounded-3xl text-xs flex items-center gap-x-2">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <span class="text-emerald-400 text-xs font-medium">LIVE • Block ~#872,450</span>
+                    </div>
+                    <div id="btc-price-badge" class="ml-2 px-3 py-1 bg-zinc-900 border border-zinc-700 rounded-3xl text-xs items-center gap-x-2 hidden sm:flex">
+                        <span class="text-zinc-500 font-bold">₿</span>
+                        <span id="btc-price" class="text-white font-mono font-semibold">–</span>
+                        <span id="btc-change" class="text-xs font-medium"></span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-x-2">
+                    <!-- User -->
+                    <div class="flex items-center gap-x-2 px-3 py-1.5 bg-zinc-900 border border-zinc-700 rounded-3xl">
+                        <img src="https://i.pravatar.cc/28?img=68" class="w-7 h-7 rounded-2xl ring-1 ring-zinc-700" alt="">
+                        <div class="text-sm">
+                            <span class="font-medium">satoshi</span>
+                            <span class="text-zinc-500 text-xs ml-1">• Personal</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="toggleMuskMode()" 
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-3xl transition-colors">
+                        <i class="fa-solid fa-rocket mr-1.5"></i>
+                        <span>Musk OS</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-screen-2xl mx-auto px-8 pt-8 pb-12 main-padding">
+        
+        <!-- Header -->
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <h1 class="font-display text-5xl tracking-tighter font-semibold header-title">Bitcoin Block Calendar</h1>
+                <p class="text-xl text-zinc-400 mt-1">10-Minuten-Slots • Blockhöhe als Zeitanker • Persönliches Research-Journal</p>
+            </div>
+            
+            <div class="flex items-center gap-x-3">
+                <div class="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-3xl text-sm flex items-center">
+                    <i class="fa-solid fa-clock mr-2 text-[#f7931a]"></i>
+                    <span id="live-time">17. Juni 2026, 08:17 CEST</span>
+                </div>
+                <button onclick="exportJSON()" 
+                        class="px-5 py-2.5 bg-white text-zinc-900 hover:bg-zinc-100 transition-colors text-sm font-semibold rounded-3xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>JSON Export</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-xs section-header text-zinc-500">AKTUELLER BLOCK</div>
+                <div class="text-4xl font-semibold tabular-nums mt-1 block-height" id="current-block">872,450</div>
+                <div class="text-emerald-400 text-xs mt-1 flex items-center">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +12 seit letzter Stunde
+                </div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-xs section-header text-zinc-500">HEUTIGE SLOTS</div>
+                <div class="text-4xl font-semibold tabular-nums mt-1">144 <span class="text-base font-normal text-zinc-400">/ 144</span></div>
+                <div class="text-xs text-amber-400 mt-1">100% ausgefüllt • 47 Notizen</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-xs section-header text-zinc-500">DEINE NOTIZEN</div>
+                <div class="text-4xl font-semibold tabular-nums mt-1">312</div>
+                <div class="text-xs text-zinc-400 mt-1">über 47 Blöcke • 9 Halvings</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 flex items-center justify-between">
+                <div>
+                    <div class="text-xs section-header text-zinc-500">LETZTES HALVING</div>
+                    <div class="text-2xl font-semibold tabular-nums mt-0.5">Block 840,000</div>
+                    <div class="text-emerald-400 text-xs">19. April 2024</div>
+                </div>
+                <i class="fa-solid fa-gem text-4xl text-[#f7931a] opacity-75"></i>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+            
+            <!-- Sidebar: Navigation + Filters -->
+            <div class="col-span-12 lg:col-span-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 sticky top-6 mobile-sidebar">
+                    <div class="section-header mb-3 px-1">Navigation</div>
+                    
+                    <div class="space-y-1 mb-6">
+                        <button onclick="showView('calendar')" class="w-full flex items-center gap-x-3 px-4 py-3 text-left rounded-2xl nav-active" id="nav-calendar">
+                            <i class="fa-solid fa-calendar w-5"></i>
+                            <span>Block-Slot Kalender</span>
+                        </button>
+                        <button onclick="showView('journal')" class="w-full flex items-center gap-x-3 px-4 py-3 text-left rounded-2xl hover:bg-zinc-800" id="nav-journal">
+                            <i class="fa-solid fa-book w-5"></i>
+                            <span>Research Journal</span>
+                        </button>
+                        <button onclick="showView('inbox')" class="w-full flex items-center gap-x-3 px-4 py-3 text-left rounded-2xl hover:bg-zinc-800" id="nav-inbox">
+                            <i class="fa-solid fa-inbox w-5"></i>
+                            <span>News Inbox <span class="text-[10px] px-1.5 py-px bg-red-500/80 text-white rounded">23</span></span>
+                        </button>
+                    </div>
+
+                    <div class="section-header mb-2 px-1">Filter &amp; Tags</div>
+                    <div class="flex flex-wrap gap-2">
+                        <div onclick="filterByTag('halving')" class="cursor-pointer text-xs px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-2xl flex items-center gap-x-1.5">
+                            <i class="fa-solid fa-gem text-amber-400"></i> <span>halving</span>
+                        </div>
+                        <div onclick="filterByTag('market')" class="cursor-pointer text-xs px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">market</div>
+                        <div onclick="filterByTag('onchain')" class="cursor-pointer text-xs px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">onchain</div>
+                        <div onclick="filterByTag('personal')" class="cursor-pointer text-xs px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">personal</div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-zinc-800">
+                        <div class="text-xs section-header mb-3 px-1">Schnellzugriff</div>
+                        <div class="text-sm space-y-2 text-zinc-400">
+                            <div class="flex justify-between hover:text-white cursor-pointer" onclick="jumpToBlock(840000)"><span>Halving #4</span> <span class="font-mono text-xs">840000</span></div>
+                            <div class="flex justify-between hover:text-white cursor-pointer" onclick="jumpToBlock(872450)"><span>Heute</span> <span class="font-mono text-xs">872450</span></div>
+                            <div class="flex justify-between hover:text-white cursor-pointer"><span>Genesis Block</span> <span class="font-mono text-xs">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- BFF Connection Panel -->
+                    <div class="mt-6 pt-6 border-t border-zinc-700">
+                        <div class="section-header mb-3 px-1 flex items-center justify-between">
+                            <span>BFF Connection</span>
+                            <span id="bff-status" 
+                                  class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 font-medium">offline</span>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <button onclick="bffLogin()" 
+                                    class="w-full flex items-center justify-center gap-x-2 px-4 py-3.5 bg-emerald-600 active:bg-emerald-700 text-white rounded-2xl text-sm font-medium transition-all">
+                                <i class="fa-solid fa-sign-in-alt mr-1"></i>
+                                <span>Demo Login via BFF</span>
+                            </button>
+                            
+                            <button onclick="bffRefresh()" 
+                                    class="w-full flex items-center justify-center gap-x-2 px-4 py-3 bg-zinc-800 active:bg-zinc-700 border border-zinc-600 rounded-2xl text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                    id="btn-refresh" disabled>
+                                <i class="fa-solid fa-sync mr-1"></i>
+                                <span>Token refreshen</span>
+                            </button>
+                            
+                            <button onclick="bffLogout()" 
+                                    class="w-full flex items-center justify-center gap-x-2 px-4 py-2 text-red-400 hover:bg-red-950/30 border border-red-900/50 rounded-2xl text-sm transition-all"
+                                    id="btn-logout" disabled>
+                                <i class="fa-solid fa-sign-out-alt mr-1"></i>
+                                <span>Logout &amp; Family widerrufen</span>
+                            </button>
+                        </div>
+                        
+                        <div id="bff-session-info" class="mt-3 text-xs bg-zinc-950 border border-zinc-700 rounded-2xl p-3 hidden">
+                            <div class="flex justify-between items-center">
+                                <span class="text-zinc-400">Session</span> 
+                                <span id="bff-session-id" class="font-mono text-[10px] text-emerald-400"></span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-zinc-400">Access läuft ab</span> 
+                                <span id="bff-expires" class="font-mono text-emerald-400 text-[10px]"></span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-zinc-400">Refresh Version</span> 
+                                <span id="bff-version" class="font-mono text-amber-400"></span>
+                            </div>
+                        </div>
+                        
+                        <div id="bff-error" class="mt-2 px-2 text-[10px] text-red-400 hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content: Calendar / Journal / Inbox -->
+            <div class="col-span-12 lg:col-span-9" id="main-content">
+                
+                <!-- CALENDAR VIEW -->
+                <div id="view-calendar">
+                    <div class="flex items-center justify-between mb-4 px-1">
+                        <div>
+                            <span class="font-semibold text-2xl">Heute • 17. Juni 2026</span>
+                            <span class="ml-3 text-sm text-zinc-400">144 Slots à 10 Minuten</span>
+                        </div>
+                        <div class="flex items-center gap-x-2 text-sm">
+                            <button onclick="prevDay()" class="px-3 py-1.5 hover:bg-zinc-800 rounded-2xl border border-zinc-700 flex items-center"><i class="fa-solid fa-chevron-left mr-2"></i> Gestern</button>
+                            <button onclick="nextDay()" class="px-3 py-1.5 hover:bg-zinc-800 rounded-2xl border border-zinc-700 flex items-center">Morgen <i class="fa-solid fa-chevron-right ml-2"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- 10-Minute Slot Grid -->
+                    <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2" id="slot-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                    
+                    <div class="mt-4 text-xs text-zinc-500 flex items-center gap-x-4 px-1">
+                        <div><span class="inline-block w-3 h-3 bg-yellow-100 border border-yellow-600 rounded mr-1.5"></span> Mit Notiz</div>
+                        <div><span class="inline-block w-3 h-3 bg-emerald-900 border border-emerald-600 rounded mr-1.5"></span> Halving / Wichtiges Event</div>
+                        <div class="flex-1"></div>
+                        <div>Blockzeit ≈ 10 Min • Difficulty Adjustment alle 2016 Blöcke</div>
+                    </div>
+                </div>
+
+                <!-- JOURNAL VIEW -->
+                <div id="view-journal" class="hidden">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+                        <h2 class="font-display text-3xl mb-6">Research Journal</h2>
+                        
+                        <div class="space-y-6">
+                            <div class="border-l-4 border-[#f7931a] pl-6">
+                                <div class="flex justify-between text-sm">
+                                    <div><span class="font-mono text-[#f7931a]">Block 872,312</span> • <span class="text-zinc-400">16. Juni 2026, 14:40</span></div>
+                                    <div class="text-xs px-2.5 py-px bg-zinc-800 rounded">thesis</div>
+                                </div>
+                                <div class="font-semibold mt-1">ETF Flows stark positiv – institutionelle Akkumulation?</div>
+                                <div class="text-sm text-zinc-400 mt-1 line-clamp-2">BlackRock + Fidelity kauften zusammen über 12k BTC diese Woche. On-chain Daten zeigen starkes HODL-Verhalten...</div>
+                            </div>
+                            
+                            <div class="border-l-4 border-zinc-600 pl-6">
+                                <div class="flex justify-between text-sm">
+                                    <div><span class="font-mono text-zinc-400">Block 840,000</span> • <span class="text-zinc-400">19. April 2024</span></div>
+                                    <div class="text-xs px-2.5 py-px bg-amber-900 text-amber-300 rounded">halving</div>
+                                </div>
+                                <div class="font-semibold mt-1">Das 4. Halving – meine Beobachtungen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INBOX VIEW -->
+                <div id="view-inbox" class="hidden">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-display text-3xl">News Inbox <span id="news-inbox-count" class="text-base font-normal text-zinc-400">(wird geladen...)</span></h2>
+                            <button onclick="importNews()" class="text-sm px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl flex items-center gap-x-2">
+                                <i class="fa-solid fa-sync"></i> <span>News importieren (RSS/API)</span>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3 text-sm" id="news-feed-container">
+                            <div class="flex gap-4 p-4 bg-zinc-950 border border-zinc-700 rounded-2xl hover:border-zinc-500 cursor-pointer" onclick="assignToSlot(this)">
+                                <div class="w-16 text-center">
+                                    <div class="text-xs text-zinc-500">vor 4m</div>
+                                    <div class="font-mono text-emerald-400">14:50</div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium">MicroStrategy kauft weitere 1.500 BTC für $150M</div>
+                                    <div class="text-xs text-zinc-400">CoinDesk • Block ~872,440</div>
+                                </div>
+                                <div>
+                                    <span class="px-3 py-1 text-xs rounded-2xl bg-emerald-900 text-emerald-300">market</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-4 p-4 bg-zinc-950 border border-zinc-700 rounded-2xl hover:border-zinc-500 cursor-pointer" onclick="assignToSlot(this)">
+                                <div class="w-16 text-center">
+                                    <div class="text-xs text-zinc-500">vor 18m</div>
+                                    <div class="font-mono text-emerald-400">14:32</div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium">Lightning Network Capacity erreicht neues ATH von 5.400 BTC</div>
+                                    <div class="text-xs text-zinc-400">Bitcoin Magazine</div>
+                                </div>
+                                <div>
+                                    <span class="px-3 py-1 text-xs rounded-2xl bg-blue-900 text-blue-300">onchain</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slot Detail Modal -->
+    <div id="slot-modal" onclick="if (event.target.id === 'slot-modal') closeModal()" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 w-full max-w-2xl mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl overflow-hidden">
+            
+            <!-- Modal Header -->
+            <div class="px-8 py-6 border-b border-zinc-700 flex justify-between items-center bg-zinc-950">
+                <div>
+                    <div class="flex items-center gap-x-3">
+                        <div id="modal-block" class="font-mono text-3xl font-semibold text-[#f7931a]"></div>
+                        <button onclick="copyBlockTimestamp()" title="Block-Timestamp kopieren"
+                                class="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-xl flex items-center gap-x-1 text-zinc-400 hover:text-white">
+                            <i class="fa-solid fa-copy text-[10px]"></i> kopieren
+                        </button>
+                    </div>
+                    <div id="modal-time" class="text-sm text-zinc-400"></div>
+                    <div id="modal-iso" class="text-[10px] font-mono text-zinc-600 mt-0.5"></div>
+                </div>
+                <button onclick="closeModal()" class="text-zinc-400 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-8">
+                <!-- Note Editor -->
+                <div class="mb-6">
+                    <label class="text-xs section-header mb-2 block">DEINE NOTIZ (Markdown)</label>
+                    <textarea id="note-editor" rows="8" 
+                              class="w-full bg-zinc-950 border border-zinc-700 focus:border-[#f7931a] rounded-2xl p-4 text-sm font-light"
+                              placeholder="Was ist in diesem 10-Minuten-Slot passiert?&#10;&#10;- Marktbewegung&#10;- On-chain Event&#10;- Persönliche Beobachtung"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs section-header mb-1.5 block">TAGS</label>
+                        <div class="flex flex-wrap gap-2" id="tag-container">
+                            <!-- dynamic tags -->
+                        </div>
+                        <input id="new-tag" type="text" placeholder="Neuer Tag + Enter" 
+                               class="mt-2 text-sm bg-zinc-950 border border-zinc-700 px-3 py-1.5 rounded-2xl w-full text-xs"
+                               onkeydown="if (event.key === 'Enter') addTag()">
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs section-header mb-1.5 block">KATEGORIE</label>
+                        <select id="category-select" class="bg-zinc-950 border border-zinc-700 text-sm rounded-2xl px-4 py-2 w-full">
+                            <option value="personal">Personal</option>
+                            <option value="market">Market</option>
+                            <option value="onchain">On-chain</option>
+                            <option value="halving">Halving / Epoch</option>
+                            <option value="research">Research</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-5 bg-zinc-950 border-t border-zinc-700 flex justify-between items-center">
+                <button onclick="deleteNote()" class="text-red-400 hover:text-red-300 text-sm flex items-center gap-x-2">
+                    <i class="fa-solid fa-trash"></i> <span>Notiz löschen</span>
+                </button>
+                
+                <div class="flex gap-x-3">
+                    <button onclick="closeModal()" class="px-6 py-3 text-sm rounded-2xl border border-zinc-600 active:bg-zinc-800">Abbrechen</button>
+                    <button onclick="saveNote()" class="px-8 py-3 bg-[#f7931a] active:bg-amber-600 transition-colors text-sm font-semibold text-black rounded-2xl">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#f7931a');
+        }
+        
+        // Live clock
+        function updateLiveClock() {
+            const el = document.getElementById('live-time');
+            setInterval(() => {
+                const now = new Date();
+                el.textContent = now.toLocaleDateString('de-DE', { 
+                    day: 'numeric', month: 'long', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit' 
+                }) + ' CEST';
+            }, 30000);
+        }
+        
+        // Current block simulation (in real app: from API or websocket)
+        let currentBlock = 872450;
+        
+        function updateCurrentBlock() {
+            const el = document.getElementById('current-block');
+            setInterval(() => {
+                currentBlock++;
+                el.textContent = currentBlock.toLocaleString('de-DE');
+            }, 600000); // every 10 min in real life
+        }
+        
+        // Slot data store (localStorage persistent)
+        let notes = JSON.parse(localStorage.getItem('blockNotes') || '{}');
+        
+        function saveNotesToStorage() {
+            localStorage.setItem('blockNotes', JSON.stringify(notes));
+        }
+        
+        // Generate 144 slots for the day (10 min each)
+        function generateSlots() {
+            const grid = document.getElementById('slot-grid');
+            grid.innerHTML = '';
+            
+            const baseBlock = 872450 - 50; // start a bit earlier for demo
+            const startHour = 0;
+            
+            for (let i = 0; i < 144; i++) {
+                const slotIndex = i;
+                const blockHeight = baseBlock + Math.floor(i / 6); // ~ every 6 slots one block (rough)
+                
+                const slotEl = document.createElement('div');
+                slotEl.className = `slot border border-zinc-700 bg-zinc-900 active:bg-zinc-800 hover:border-zinc-400 rounded-2xl p-3 cursor-pointer flex flex-col min-h-[88px] active:scale-[0.985] transition-transform`;
+                
+                const timeLabel = `${String(Math.floor(i/6)).padStart(2,'0')}:${String((i % 6) * 10).padStart(2,'0')}`;
+                
+                const hasNote = notes[blockHeight] && notes[blockHeight][slotIndex];
+                if (hasNote) {
+                    slotEl.classList.add('has-note', 'border-yellow-600');
+                }
+                
+                // Special events
+                let special = '';
+                if (blockHeight === 840000) {
+                    special = `<div class="text-[9px] text-amber-400 font-medium mt-auto"><i class="fa-solid fa-gem mr-1"></i>HALVING</div>`;
+                    slotEl.classList.add('!border-amber-500', 'bg-amber-950/30');
+                }
+                
+                slotEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-mono text-xs text-zinc-400">${timeLabel}</div>
+                            <div class="font-mono text-sm font-semibold text-[#f7931a] block-height">${blockHeight.toLocaleString('de-DE')}</div>
+                        </div>
+                        ${hasNote ? '<i class="fa-solid fa-sticky-note text-yellow-500 mt-0.5"></i>' : ''}
+                    </div>
+                    ${special}
+                `;
+                
+                slotEl.onclick = () => openSlotModal(blockHeight, slotIndex, timeLabel);
+                grid.appendChild(slotEl);
+            }
+        }
+        
+        let currentSlot = { block: null, index: null, time: null };
+        
+        function openSlotModal(blockHeight, slotIndex, timeLabel) {
+            currentSlot = { block: blockHeight, index: slotIndex, time: timeLabel };
+            
+            const modal = document.getElementById('slot-modal');
+            document.getElementById('modal-block').textContent = `Block #${blockHeight.toLocaleString('de-DE')}`;
+            document.getElementById('modal-time').textContent = `${timeLabel} • 10-Minuten-Slot`;
+            
+            // Load existing note
+            const existing = notes[blockHeight]?.[slotIndex];
+            const editor = document.getElementById('note-editor');
+            editor.value = existing?.content || '';
+            
+            // Tags
+            renderTags(existing?.tags || []);
+            
+            // Category
+            document.getElementById('category-select').value = existing?.category || 'personal';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            editor.focus();
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('slot-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+        
+        let currentTags = [];
+        
+        function renderTags(tags) {
+            currentTags = [...tags];
+            const container = document.getElementById('tag-container');
+            container.innerHTML = '';
+            
+            tags.forEach((tag, idx) => {
+                const tagEl = document.createElement('div');
+                tagEl.className = `text-xs px-3 py-1 bg-zinc-800 rounded-2xl flex items-center gap-x-1.5`;
+                tagEl.innerHTML = `
+                    <span>${tag}</span>
+                    <button onclick="removeTag(${idx}, event)" class="text-zinc-400 hover:text-red-400">×</button>
+                `;
+                container.appendChild(tagEl);
+            });
+            
+            if (tags.length === 0) {
+                container.innerHTML = `<span class="text-xs text-zinc-500 px-2">Keine Tags</span>`;
+            }
+        }
+        
+        function addTag() {
+            const input = document.getElementById('new-tag');
+            const val = input.value.trim();
+            if (!val) return;
+            
+            if (!currentTags.includes(val)) {
+                currentTags.push(val);
+                renderTags(currentTags);
+            }
+            input.value = '';
+        }
+        
+        function removeTag(index, e) {
+            e.stopImmediatePropagation();
+            currentTags.splice(index, 1);
+            renderTags(currentTags);
+        }
+        
+        function saveNote() {
+            const content = document.getElementById('note-editor').value.trim();
+            const category = document.getElementById('category-select').value;
+            
+            if (!content && currentTags.length === 0) {
+                // If empty, delete note
+                deleteNote();
+                return;
+            }
+            
+            const { block, index } = currentSlot;
+            
+            if (!notes[block]) notes[block] = {};
+            
+            notes[block][index] = {
+                content,
+                tags: currentTags,
+                category,
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveNotesToStorage();
+            closeModal();
+            
+            // Refresh grid
+            generateSlots();
+            
+            // Toast
+            showToast('Notiz gespeichert & Blockhöhe als Anker gesetzt');
+        }
+        
+        function deleteNote() {
+            const { block, index } = currentSlot;
+            if (notes[block] && notes[block][index]) {
+                delete notes[block][index];
+                if (Object.keys(notes[block]).length === 0) delete notes[block];
+                saveNotesToStorage();
+            }
+            closeModal();
+            generateSlots();
+        }
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 bg-zinc-800 border border-zinc-600 text-sm px-5 py-3 rounded-2xl flex items-center gap-x-3 shadow-xl`;
+            toast.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all .2s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 200);
+            }, 2200);
+        }
+        
+        function filterByTag(tag) {
+            // Simple filter demo - highlight matching slots
+            const slots = document.querySelectorAll('#slot-grid > div');
+            slots.forEach(slot => slot.style.opacity = '1');
+            
+            let found = false;
+            Object.keys(notes).forEach(block => {
+                Object.keys(notes[block]).forEach(idx => {
+                    const note = notes[block][idx];
+                    if (note.tags && note.tags.includes(tag)) {
+                        // Highlight logic could be improved
+                        found = true;
+                    }
+                });
+            });
+            
+            if (found) {
+                showToast(`Filter: ${tag} – passende Slots hervorgehoben`);
+            } else {
+                showToast(`Keine Notizen mit Tag "${tag}" gefunden`);
+            }
+        }
+        
+        function jumpToBlock(block) {
+            // In real app: scroll or load that day
+            alert(`In der vollen App würde jetzt zum Block #${block} gesprungen (Timeline / Date-Picker).`);
+            // For demo: just show a message
+            showToast(`Block #${block} als Anker geladen (Demo)`);
+        }
+        
+        function prevDay() {
+            showToast('Vorheriger Tag geladen (Demo)');
+            // In real: change date and regenerate slots with correct baseBlock
+        }
+        
+        function nextDay() {
+            showToast('Nächster Tag geladen (Demo)');
+        }
+        
+        function showView(view) {
+            // Hide all views
+            document.getElementById('view-calendar').classList.add('hidden');
+            document.getElementById('view-journal').classList.add('hidden');
+            document.getElementById('view-inbox').classList.add('hidden');
+            
+            // Show selected
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            
+            // Update nav
+            document.querySelectorAll('[id^="nav-"]').forEach(el => el.classList.remove('nav-active'));
+            document.getElementById(`nav-${view}`).classList.add('nav-active');
+        }
+        
+        function assignToSlot(element) {
+            // Demo: open calendar and prefill a note from news
+            showView('calendar');
+            setTimeout(() => {
+                const randomBlock = 872450 + Math.floor(Math.random() * 20);
+                const randomSlot = Math.floor(Math.random() * 144);
+                openSlotModal(randomBlock, randomSlot, '14:50');
+                
+                // Prefill with news title
+                setTimeout(() => {
+                    const editor = document.getElementById('note-editor');
+                    editor.value = element.querySelector('.font-medium').textContent + '\n\nQuelle: ' + element.querySelector('.text-xs').textContent;
+                    document.getElementById('category-select').value = 'market';
+                }, 300);
+            }, 400);
+        }
+        
+        function importNews() {
+            showToast('RSS / CryptoNews API Import gestartet (Demo)');
+            setTimeout(() => {
+                const inbox = document.getElementById('view-inbox');
+                const newItem = document.createElement('div');
+                newItem.className = `flex gap-4 p-4 bg-zinc-950 border border-emerald-700 rounded-2xl mt-3`;
+                newItem.innerHTML = `
+                    <div class="w-16 text-center text-xs">
+                        <div class="text-emerald-400">JETZT</div>
+                        <div class="font-mono">08:20</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium">xAI kündigt neue Bitcoin-Integration für Grok an</div>
+                        <div class="text-xs text-zinc-400">The Block • Frisch importiert</div>
+                    </div>
+                `;
+                inbox.querySelector('.space-y-3').appendChild(newItem);
+            }, 1200);
+        }
+        
+        function exportJSON() {
+            const data = {
+                exportedAt: new Date().toISOString(),
+                version: "blockOS-v5",
+                currentBlock: currentBlock,
+                notes: notes
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bitcoin-block-notes-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('JSON Export erfolgreich heruntergeladen');
+        }
+        
+        function toggleMuskMode() {
+            const body = document.body;
+            if (body.classList.contains('musk-mode')) {
+                body.classList.remove('musk-mode');
+                showToast('Musk OS Modus deaktiviert');
+            } else {
+                body.classList.add('musk-mode');
+                showToast('Musk OS Signal Grid aktiviert – Fokus auf Tesla, SpaceX, xAI, Neuralink');
+                // In real app: change colors + load different signal cards
+            }
+        }
+        
+        // Keyboard shortcuts
+        function setupKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    const editor = document.getElementById('note-editor');
+                    if (!editor) {
+                        showView('calendar');
+                    }
+                }
+                if (e.metaKey && e.key === 'k') {
+                    e.preventDefault();
+                    showView('inbox');
+                }
+            });
+            
+            // Easter egg
+            let konami = '';
+            document.addEventListener('keydown', (e) => {
+                konami += e.key;
+                if (konami.length > 10) konami = konami.slice(-10);
+                if (konami.includes('ArrowUpArrowUpArrowDownArrowDown')) {
+                    document.body.style.filter = 'hue-rotate(180deg)';
+                    setTimeout(() => document.body.style.filter = '', 1200);
+                    konami = '';
+                }
+            });
+        }
+        
+
+        // ============================================
+        // LIVE BTC PRICE (CoinGecko free API)
+        // ============================================
+        async function fetchBTCPrice() {
+            try {
+                // mempool.space - open Bitcoin API, no auth needed
+                const res = await fetch('https://mempool.space/api/v1/prices');
+                const data = await res.json();
+                const price = data.USD;
+                const priceEl = document.getElementById('btc-price');
+                const changeEl = document.getElementById('btc-change');
+                if (priceEl) priceEl.textContent = '$' + Number(price).toLocaleString('en-US');
+                if (changeEl) { changeEl.textContent = ''; }
+                document.getElementById('btc-price-badge')?.classList.remove('hidden');
+                document.getElementById('btc-price-badge')?.classList.add('flex');
+            } catch(e) {
+                // Fallback: Coinbase public API
+                try {
+                    const r2 = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+                    const d2 = await r2.json();
+                    const price2 = parseFloat(d2.data.amount);
+                    const priceEl = document.getElementById('btc-price');
+                    if (priceEl) priceEl.textContent = '$' + price2.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                    document.getElementById('btc-price-badge')?.classList.remove('hidden');
+                } catch(e2) { console.warn('BTC price fetch failed:', e2); }
+            }
+        }
+
+        // ============================================
+        // MOBILE NAV helper
+        // ============================================
+        function setMobileNav(activeBtn) {
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.classList.remove('text-[#f7931a]');
+                btn.classList.add('text-zinc-500');
+            });
+            activeBtn.classList.remove('text-zinc-500');
+            activeBtn.classList.add('text-[#f7931a]');
+        }
+
+        // ============================================
+        // REAL RSS NEWS (via rss2json.com)
+        // ============================================
+        const RSS_FEEDS = [
+            'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.coindesk.com/arc/outboundfeeds/rss/') + '&count=8&api_key=',
+            'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://cointelegraph.com/rss') + '&count=8&api_key='
+        ];
+
+        async function loadRealNews() {
+            const container = document.getElementById('news-feed-container');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="text-zinc-500 text-sm px-4 py-6 text-center"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Lade aktuelle Bitcoin News...</div>';
+            
+            let allItems = [];
+            for (const feed of RSS_FEEDS) {
+                try {
+                    const url = feed;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if (data.status === 'ok' && data.items) {
+                        allItems = allItems.concat(data.items.map(item => ({
+                            title: item.title,
+                            source: data.feed.title || 'News',
+                            link: item.link,
+                            pubDate: new Date(item.pubDate),
+                            category: guessCategory(item.title + ' ' + (item.description || ''))
+                        })));
+                    }
+                } catch(e) {
+                    console.warn('RSS fetch failed for', feed, e);
+                }
+            }
+            
+            // Sort by date, newest first
+            allItems.sort((a, b) => b.pubDate - a.pubDate);
+            
+            if (allItems.length === 0) {
+                container.innerHTML = '<div class="text-zinc-500 text-sm px-4 py-6 text-center">Keine News geladen. API-Limit oder Netzwerkfehler.</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            allItems.slice(0, 15).forEach(item => {
+                const age = getRelativeTime(item.pubDate);
+                const catColor = { market: 'bg-green-900 text-green-300', onchain: 'bg-blue-900 text-blue-300', halving: 'bg-amber-900 text-amber-300' }[item.category] || 'bg-zinc-800 text-zinc-300';
+                const div = document.createElement('div');
+                div.className = 'flex gap-4 p-4 bg-zinc-950 border border-zinc-800 rounded-2xl hover:border-zinc-600 cursor-pointer transition-colors';
+                div.innerHTML = `
+                    <div class="w-20 shrink-0 text-center text-xs">
+                        <div class="text-zinc-400">${age}</div>
+                        <div class="font-mono text-zinc-500 text-[10px]">${item.pubDate.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'})}</div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm leading-snug">${item.title}</div>
+                        <div class="text-xs text-zinc-400 mt-1">${item.source}</div>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full h-fit shrink-0 ${catColor}">${item.category}</span>
+                `;
+                div.onclick = () => window.open(item.link, '_blank');
+                container.appendChild(div);
+            });
+            
+            // Update badge count
+            const badge = document.querySelector('[id^="nav-inbox"] span');
+            if (badge) badge.textContent = Math.min(allItems.length, 15);
+            showToast(allItems.length + ' Bitcoin News geladen');
+        }
+
+        function guessCategory(text) {
+            const t = text.toLowerCase();
+            if (t.includes('halving') || t.includes('subsidy') || t.includes('miner')) return 'halving';
+            if (t.includes('etf') || t.includes('price') || t.includes('market') || t.includes('bull') || t.includes('bear') || t.includes('fund')) return 'market';
+            if (t.includes('lightning') || t.includes('on-chain') || t.includes('mempool') || t.includes('node') || t.includes('hash')) return 'onchain';
+            return 'market';
+        }
+
+        function getRelativeTime(date) {
+            const diff = Date.now() - date.getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return 'vor ' + mins + 'm';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return 'vor ' + hrs + 'h';
+            return 'vor ' + Math.floor(hrs / 24) + 'd';
+        }
+
+        // Override importNews to use real RSS
+        function importNews() { loadRealNews(); }
+
+
+        function copyBlockTimestamp() {
+            const b = document.getElementById('modal-block').textContent;
+            const iso = document.getElementById('modal-iso') ? document.getElementById('modal-iso').textContent : '';
+            const ts = b + (iso ? ' | ' + iso : '');
+            if (navigator.clipboard) { navigator.clipboard.writeText(ts).then(() => showToast('Timestamp kopiert')); }
+            else { showToast(ts); }
+        }
+
+        // Initialize everything
+        function initApp() {
+            initializeTailwind();
+            updateLiveClock();
+            updateCurrentBlock();
+            generateSlots();
+            setupKeyboard();
+            // Live BTC price
+            fetchBTCPrice();
+            setInterval(fetchBTCPrice, 30000);
+            // Load real news
+            loadRealNews();
+            
+            // Demo data seed (only first time)
+            if (Object.keys(notes).length === 0) {
+                notes[872312] = {
+                    42: {
+                        content: "Starker ETF-Zufluss heute. BlackRock hat wieder über 800 BTC gekauft. On-chain Accumulation Address aktiv.",
+                        tags: ["market", "etf"],
+                        category: "market",
+                        updatedAt: "2026-06-16T14:40:00Z"
+                    }
+                };
+                notes[840000] = {
+                    0: {
+                        content: "Das 4. Halving! Block subsidy jetzt 3.125 BTC. Langfristig bullisch. Persönliche Position: HODL + DCA.",
+                        tags: ["halving", "thesis"],
+                        category: "halving",
+                        updatedAt: "2024-04-19T12:00:00Z"
+                    }
+                };
+                saveNotesToStorage();
+                generateSlots(); // refresh with demo data
+            }
+            
+            // Welcome toast on first load
+            setTimeout(() => {
+                if (!localStorage.getItem('blockOS_welcomed')) {
+                    showToast('Willkommen in blockOS v5 – deinem persönlichen Bitcoin Research OS');
+                    localStorage.setItem('blockOS_welcomed', 'true');
+                }
+            }, 1800);
+            
+            // Make sure calendar is visible
+            document.getElementById('view-calendar').classList.remove('hidden');
+
+            // Check BFF status on startup
+            setTimeout(checkBFFStatus, 800);
+        }
+        
+        // ============================================
+        // BFF INTEGRATION (neuer Block)
+        // ============================================
+        const BFF_URL = 'http://localhost:3001';
+        let currentBFFSession = null;
+
+        async function checkBFFStatus() {
+            const statusEl = document.getElementById('bff-status');
+            const errorEl = document.getElementById('bff-error');
+            
+            try {
+                const res = await fetch(`${BFF_URL}/health`, { method: 'GET' });
+                if (res.ok) {
+                    statusEl.textContent = 'online';
+                    statusEl.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-900 text-emerald-400 font-medium';
+                    errorEl.classList.add('hidden');
+                    // Enable refresh button if we have a session
+                    if (currentBFFSession) {
+                        document.getElementById('btn-refresh').disabled = false;
+                    }
+                } else {
+                    throw new Error('not ok');
+                }
+            } catch (e) {
+                statusEl.textContent = 'offline';
+                statusEl.className = 'text-[10px] px-2 py-0.5 rounded-full bg-red-900 text-red-400 font-medium';
+                errorEl.textContent = 'BFF nicht erreichbar – starte zuerst node server.js im bff-minimal Ordner';
+                errorEl.classList.remove('hidden');
+                document.getElementById('btn-refresh').disabled = true;
+            }
+        }
+
+        async function bffLogin() {
+            const errorEl = document.getElementById('bff-error');
+            errorEl.classList.add('hidden');
+            
+            try {
+                const res = await fetch(`${BFF_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: 'demo-user' })
+                });
+                
+                if (!res.ok) throw new Error('Login fehlgeschlagen');
+                
+                const data = await res.json();
+                currentBFFSession = { sessionId: data.sessionId };
+                
+                // Persist
+                localStorage.setItem('blockOS_bff_session', JSON.stringify(currentBFFSession));
+                
+                document.getElementById('btn-refresh').disabled = false;
+                document.getElementById('btn-logout').disabled = false;
+                await updateBFFSessionInfo();
+                
+                showToast('Erfolgreich via BFF eingeloggt');
+                
+            } catch (err) {
+                errorEl.textContent = 'Login fehlgeschlagen: ' + err.message;
+                errorEl.classList.remove('hidden');
+                showToast('BFF Login fehlgeschlagen – ist der Server gestartet?');
+            }
+        }
+
+        async function bffRefresh() {
+            if (!currentBFFSession?.sessionId) {
+                showToast('Bitte zuerst Login via BFF machen');
+                return;
+            }
+            
+            const errorEl = document.getElementById('bff-error');
+            errorEl.classList.add('hidden');
+            
+            try {
+                const res = await fetch(`${BFF_URL}/api/auth/refresh`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentBFFSession.sessionId })
+                });
+                
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Refresh fehlgeschlagen');
+                }
+                
+                const data = await res.json();
+                await updateBFFSessionInfo();
+                showToast('Token erfolgreich rotiert (Version ' + data.refreshTokenVersion + ')');
+                
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+                // If session was revoked, clear it
+                if (err.message.includes('REVOKED') || err.message.includes('INVALID')) {
+                    currentBFFSession = null;
+                    localStorage.removeItem('blockOS_bff_session');
+                    document.getElementById('bff-session-info').classList.add('hidden');
+                    document.getElementById('btn-refresh').disabled = true;
+                }
+            }
+        }
+
+        async function bffLogout() {
+            if (!currentBFFSession?.sessionId) {
+                showToast('Keine aktive Session');
+                return;
+            }
+            
+            const errorEl = document.getElementById('bff-error');
+            errorEl.classList.add('hidden');
+            
+            try {
+                const res = await fetch(`${BFF_URL}/api/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentBFFSession.sessionId })
+                });
+                
+                const data = await res.json();
+                
+                // Always clear client state
+                currentBFFSession = null;
+                localStorage.removeItem('blockOS_bff_session');
+                
+                document.getElementById('bff-session-info').classList.add('hidden');
+                document.getElementById('btn-refresh').disabled = true;
+                document.getElementById('btn-logout').disabled = true;
+                
+                showToast(data.message || 'Erfolgreich ausgeloggt + Token-Familie widerrufen');
+                
+                // Re-check status
+                setTimeout(checkBFFStatus, 300);
+                
+            } catch (err) {
+                // Even on network error, clear local state
+                currentBFFSession = null;
+                localStorage.removeItem('blockOS_bff_session');
+                document.getElementById('bff-session-info').classList.add('hidden');
+                document.getElementById('btn-refresh').disabled = true;
+                showToast('Logout durchgeführt (Client-seitig bereinigt)');
+            }
+        }
+
+        async function updateBFFSessionInfo() {
+            if (!currentBFFSession?.sessionId) return;
+            
+            try {
+                const res = await fetch(`${BFF_URL}/api/session/${currentBFFSession.sessionId}`);
+                if (!res.ok) throw new Error('Session nicht gefunden');
+                
+                const session = await res.json();
+                currentBFFSession = { ...currentBFFSession, ...session };
+                
+                // Update UI
+                document.getElementById('bff-session-id').textContent = session.sessionId.slice(0, 12) + '...';
+                document.getElementById('bff-expires').textContent = new Date(session.accessTokenExpiresAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('bff-version').textContent = 'v' + session.refreshTokenVersion;
+                
+                document.getElementById('bff-session-info').classList.remove('hidden');
+                
+            } catch (e) {
+                console.warn('Konnte Session-Info nicht laden:', e);
+            }
+        }
+
+        // Restore session from localStorage on load
+        function restoreBFFSession() {
+            const saved = localStorage.getItem('blockOS_bff_session');
+            if (saved) {
+                try {
+                    currentBFFSession = JSON.parse(saved);
+                    document.getElementById('btn-refresh').disabled = false;
+                    document.getElementById('btn-logout').disabled = false;
+                    updateBFFSessionInfo();
+                } catch (_) {}
+            }
+        }
+
+        // Boot the app
+        window.onload = function() {
+            initApp();
+            restoreBFFSession();
+            
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('Service Worker registered:', reg.scope))
+                    .catch((err) => console.warn('Service Worker failed:', err));
+            }
+        };
+    </script>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 z-50 safe-area-bottom">
+        <div class="flex items-stretch h-16">
+            <button onclick="showView('calendar'); setMobileNav(this)" class="flex-1 flex flex-col items-center justify-center gap-0.5 text-[#f7931a] mobile-nav-btn active">
+                <i class="fa-solid fa-calendar text-lg"></i>
+                <span class="text-[10px] font-medium">Kalender</span>
+            </button>
+            <button onclick="showView('journal'); setMobileNav(this)" class="flex-1 flex flex-col items-center justify-center gap-0.5 text-zinc-500 mobile-nav-btn">
+                <i class="fa-solid fa-book text-lg"></i>
+                <span class="text-[10px] font-medium">Journal</span>
+            </button>
+            <button onclick="showView('inbox'); setMobileNav(this)" class="flex-1 flex flex-col items-center justify-center gap-0.5 text-zinc-500 mobile-nav-btn">
+                <i class="fa-solid fa-inbox text-lg"></i>
+                <span class="text-[10px] font-medium">News</span>
+                <span class="absolute -top-1 right-0 text-[9px] px-1.5 py-px bg-red-500 text-white rounded-full">23</span>
+            </button>
+        </div>
+    </nav>
+</body>
+</html>

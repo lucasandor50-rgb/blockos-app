@@ -1,0 +1,15 @@
+{
+  "name": "blockos-app",
+  "version": "1.0.0",
+  "description": "blockOS Bitcoin Block Calendar wrapped for iOS (PWA) and Desktop (Electron)",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite --host",
+    "desktop": "electron .",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "electron": "^30.0.1",
+    "vite": "^5.2.11"
+  }
+}
