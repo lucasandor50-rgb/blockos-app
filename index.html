@@ -705,18 +705,17 @@ async function loadChart(range, tabBtn) {
   }
   if (chartData[range]) { drawChart(chartData[range]); return; }
 
-  const days = range === '7D' ? 7 : range === '30D' ? 30 : 365;
-  const end = Date.now();
-  const start = end - days * 864e5;
-  const interval = days <= 7 ? 'h6' : days <= 30 ? 'd1' : 'd1';
+  const cfg = { '7D': {interval:'1d', limit:7}, '30D': {interval:'1d', limit:30}, '1Y': {interval:'1w', limit:52} };
+  const {interval, limit} = cfg[range];
   try {
-    const r = await fetch(`https://api.coincap.io/v2/assets/bitcoin/history?interval=${interval}&start=${Math.floor(start)}&end=${Math.floor(end)}`);
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`);
     const d = await r.json();
-    if (d.data && d.data.length) {
-      const raw = d.data.map(p => ({ t: +p.time, v: parseFloat(p.priceUsd) }));
+    if (Array.isArray(d) && d.length) {
+      // Binance kline: [openTime, open, high, low, close, ...]
+      const raw = d.map(k => ({ t: k[0], v: parseFloat(k[4]) })); // close price
       chartData[range] = raw;
       if (range === '7D' && raw.length >= 2) {
-        const prev = raw[0].v;
+        const prev = raw[raw.length - 2].v;
         const curr = raw[raw.length - 1].v;
         btcData.change24h = ((curr - prev) / prev) * 100;
         updatePriceUI(btcData.price || curr, btcData.change24h);
@@ -778,35 +777,46 @@ function drawChart(data) {
 //  NEWS (RSS via rss2json.com)
 // ══════════════════════════════════════════
 async function fetchNews() {
-  // Multiple feeds with fallbacks
-  const feeds = [
-    { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml', name: 'CoinDesk' },
-    { url: 'https://bitcoinmagazine.com/.rss/full/', name: 'Bitcoin Magazine' },
-    { url: 'https://decrypt.co/feed', name: 'Decrypt' },
-    { url: 'https://cryptonews.com/news/feed/', name: 'CryptoNews' },
-  ];
   const results = [];
-  const BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
-  await Promise.allSettled(feeds.map(async feed => {
-    try {
-      const r = await fetch(BASE + encodeURIComponent(feed.url) + '&count=20&api_key=');
-      if (!r.ok) return;
-      const d = await r.json();
-      if (d.status === 'ok' && d.items?.length) {
-        d.items.forEach(item => {
-          results.push({
-            title: item.title?.trim(),
-            link: item.link,
-            source: feed.name,
-            pubDate: new Date(item.pubDate || item.published),
-            pubDateStr: item.pubDate,
-          });
-        });
-      }
-    } catch(e) {}
-  }));
+  const since = Math.floor((Date.now() / 1000) - 30 * 86400); // last 30 days
+
+  // Hacker News Bitcoin stories (no CORS issues)
+  try {
+    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?query=bitcoin+crypto&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=30`);
+    const d = await r.json();
+    (d.hits || []).forEach(h => {
+      if (!h.title) return;
+      results.push({
+        title: h.title,
+        link: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
+        source: 'Hacker News',
+        pubDate: new Date(h.created_at),
+      });
+    });
+  } catch(e) { console.warn('HN news error:', e); }
+
+  // Hacker News ethereum/altcoin
+  try {
+    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?query=ethereum+blockchain+web3&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=20`);
+    const d = await r.json();
+    (d.hits || []).forEach(h => {
+      if (!h.title) return;
+      results.push({
+        title: h.title,
+        link: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
+        source: 'Hacker News',
+        pubDate: new Date(h.created_at),
+      });
+    });
+  } catch(e) {}
+
   results.sort((a,b) => b.pubDate - a.pubDate);
-  allNews = results;
+  // deduplicate by title
+  const seen = new Set();
+  allNews = results.filter(n => {
+    if (seen.has(n.title)) return false;
+    seen.add(n.title); return true;
+  });
   renderDashNews();
   if (document.getElementById('view-newscal').classList.contains('active')) {
     renderMonthCal();
